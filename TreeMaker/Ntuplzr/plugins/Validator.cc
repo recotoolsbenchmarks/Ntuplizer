@@ -4,11 +4,11 @@
 // Class:      Validator
 // 
 /**\class Validator Validator.cc TreeMaker/Validator/plugins/Validator.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
+/
+/Description: [one line class summary]
+/
+/Implementation:
+/    [Notes on implementation]
 */
 //
 // Original Author:  Sandhya Jain
@@ -47,7 +47,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -59,9 +58,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 #include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertex.h"
@@ -70,8 +67,6 @@
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
-//#include "PhaseTwoAnalysis/NTupler/interface/MiniEvent.h"
-
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -82,14 +77,14 @@
 using namespace std;
 using namespace reco;
 //
-// class declaration
+/// class declaration
+///
 //
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
+/// If the analyzer does not use TFileService, please remove
+/// the template argument to the base class so the class inherits
+/// from  edm::one::EDAnalyzer<> and also remove the line from
+/// constructor "usesResource("TFileService");"
+/// This will improve performance in multithreaded jobs.
 const Int_t kMaxVertices = 300;
 const Int_t kMaxWeights = 1500;
 const Int_t kMaxParticle = 10000;
@@ -106,17 +101,17 @@ class Validator : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit Validator(const edm::ParameterSet&);
   ~Validator();
-
+  
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
+  
 private:
   virtual void beginJob() override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) ;
   virtual void endJob() override;
-
+  
   bool isME0MuonSelNew(reco::Muon, double, double, double, edm::EventSetup const& );
   float calculate_demetraIsolation(const pat::Tau&) const;
   bool debug_;
@@ -131,49 +126,48 @@ private:
   edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
   edm::EDGetTokenT<std::vector<pat::MET>>          metToken_          ;
   //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_         ;
-
+  
   const ME0Geometry*      ME0Geometry_;
-
+  
   TTree* mytree;
-  int Nevt;
+  int evt_size;
   
-  int Nvtx;
-  float Vtx_pt2[kMaxVertices];
+  int vtx_size;
+  float vtx_pt2[kMaxVertices];
   
-  int Ngenparticle;
-  float Ptgenparticle[kMaxParticle],Etagenparticle[kMaxParticle],Phigenparticle[kMaxParticle],Massgenparticle[kMaxParticle];
-  int PIdgenparticle[kMaxParticle], Statusgenparticle[kMaxParticle], M1genparticle[kMaxParticle], M2genparticle[kMaxParticle], D1genparticle[kMaxParticle], D2genparticle[kMaxParticle] ;
-
-  int Ngenjet;
-  float Ptgenjet[kMaxGenJet], Etagenjet[kMaxGenJet], Phigenjet[kMaxGenJet], Massgenjet[kMaxGenJet];
-
-  int Npho;
-  float MVApho[kMaxPhoton],Ptpho[kMaxPhoton], Etapho[kMaxPhoton], Phipho[kMaxPhoton],Masspho[kMaxPhoton],Isolationpho[kMaxPhoton], IDVarpho[kMaxPhoton];
-  uint32_t IsoPasspho[kMaxPhoton], IDPasspho[kMaxPhoton];
-
-  int Nelec, Chargeelec[kMaxElectron];
-  float Ptelec[kMaxElectron], Etaelec[kMaxElectron], Phielec[kMaxElectron], Isolationelec[kMaxElectron], MVAelec[kMaxElectron], Masselec[kMaxElectron], IDVarelec[kMaxElectron];
-  uint32_t IsoPasselec[kMaxElectron], IDPasselec[kMaxElectron];
-
-
-  int Nmuon, Chargemuon[kMaxMuonLoose];
-  float Ptmuon[kMaxMuonLoose], Etamuon[kMaxMuonLoose], Phimuon[kMaxMuonLoose], Isolationmuon[kMaxMuonLoose], Massmuon[kMaxMuonLoose], IDVarmuon[kMaxMuonLoose];
-  uint32_t IsoPassmuon[kMaxMuonLoose], IDPassmuon[kMaxMuonLoose] ;
-
-
-  int Ntau, Chargetau[kMaxTau];
-  float DMtau[kMaxTau], Isolationtau[kMaxTau], Pttau[kMaxTau], Etatau[kMaxTau], Phitau[kMaxTau], Masstau[kMaxTau], IsoFunctiontau[kMaxTau];
-  uint32_t IsoPasstau[kMaxTau];
-
-  int Njet; 
-  float Ptjet[kMaxJet], Etajet[kMaxJet], Phijet[kMaxJet], Massjet[kMaxJet];
-  uint32_t IDPassjet[kMaxJet];
-  float bMVAjet[kMaxJet];
-  float DeepCSVjetTag1[kMaxJet];
-  float DeepCSVjetTag2[kMaxJet];
-
-  int Nmet;
-  float Met[kMaxMissingET],Phimet[kMaxMissingET];
+  int genpart_size;
+  float genpart_pt[kMaxParticle],genpart_eta[kMaxParticle],genpart_phi[kMaxParticle],genpart_mass[kMaxParticle];
+  int genpart_pid[kMaxParticle], genpart_status[kMaxParticle], genpart_m1[kMaxParticle], genpart_m2[kMaxParticle], genpart_d1[kMaxParticle], genpart_d2[kMaxParticle] ;
+  
+  int genjet_size;
+  float genjet_pt[kMaxGenJet], genjet_eta[kMaxGenJet], genjet_phi[kMaxGenJet], genjet_mass[kMaxGenJet];
+  
+  int gamma_size;
+  float MVAgamma_[kMaxPhoton],gamma_pt[kMaxPhoton], gamma_eta[kMaxPhoton], gamma_phi[kMaxPhoton],gamma_mass[kMaxPhoton],gamma_reliso[kMaxPhoton], gamma_idvar[kMaxPhoton];
+  uint32_t gamma_isopass[kMaxPhoton], gamma_idpass[kMaxPhoton];
+  
+  int elec_size, elec_charge[kMaxElectron];
+  float elec_pt[kMaxElectron], elec_eta[kMaxElectron], elec_phi[kMaxElectron], elec_reliso[kMaxElectron], elec_mass[kMaxElectron], elec_idvar[kMaxElectron];
+  uint32_t elec_isopass[kMaxElectron],elec_idpass[kMaxElectron];
+  
+  int muon_size, muon_charge[kMaxMuonLoose];
+  float muon_pt[kMaxMuonLoose], muon_eta[kMaxMuonLoose], muon_phi[kMaxMuonLoose], muon_reliso[kMaxMuonLoose], muon_mass[kMaxMuonLoose], muon_idvar[kMaxMuonLoose];
+  uint32_t muon_isopass[kMaxMuonLoose], muon_idpass[kMaxMuonLoose] ;
+  
+  
+  int tau_size, tau_charge[kMaxTau];
+  float tau_decaymode[kMaxTau], tau_reliso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau], tau_isofunction[kMaxTau];
+  uint32_t tau_isopass[kMaxTau];
+  
+  int jet_size; 
+  float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
+  uint32_t jet_idpass[kMaxJet];
+  float jet_bMVA[kMaxJet];
+  float jet_deepcsvtag1[kMaxJet];
+  float jet_deepcsvtag2[kMaxJet];
+  
+  int met_size;
+  float met_pt[kMaxMissingET],met_phi[kMaxMissingET];
 };
 
 
@@ -189,487 +183,472 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
   metToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met")))
-
-{
-
-  if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
-
-  ME0Geometry_ = 0;
-  Nevt         = 0;
-
-  usesResource("TFileService");
-  mytree   = fs_->make<TTree>("mytree","TestTree");
-  mytree->Branch("Nevt",&Nevt, "Nevt/I");
-  mytree->Branch("Nvtx",&Nvtx, "Nvtx/I");
-  mytree->Branch("Vtx_pt2",Vtx_pt2, "Vtx_pt2[Nvtx]/F");
-
-  mytree->Branch("Ngenparticle",&Ngenparticle, "Ngenparticle/I");
-  mytree->Branch("PIdgenparticle",PIdgenparticle, "PIdgenparticle[Ngenparticle]/I");
-  mytree->Branch("Statusgenparticle",Statusgenparticle, "Statusgenparticle[Ngenparticle]/I");
-  mytree->Branch("Ptgenparticle",Ptgenparticle, "Ptgenparticle[Ngenparticle]/F");
-  mytree->Branch("Etagenparticle",Etagenparticle, "Etagenparticle[Ngenparticle]/F");
-  mytree->Branch("Phigenparticle",Phigenparticle, "Phigenparticle[Ngenparticle]/F");
-  mytree->Branch("Massgenparticle",Massgenparticle, "Massgenparticle[Ngenparticle]/F");
-  mytree->Branch("M1genparticle",M1genparticle, "M1genparticle[Ngenparticle]/I");
-  mytree->Branch("M2genparticle",M2genparticle, "M2genparticle[Ngenparticle]/I");
-  mytree->Branch("D1genparticle",D1genparticle, "D1genparticle[Ngenparticle]/I");
-  mytree->Branch("D2genparticle",D2genparticle, "D2genparticle[Ngenparticle]/I");
-
-  mytree->Branch("Ngenjet",&Ngenjet, "Ngenjet/I");
-  mytree->Branch("Ptgenjet",Ptgenjet, "Ptgenjet[Ngenjet]/F");
-  mytree->Branch("Etagenjet",Etagenjet, "Etagenjet[Ngenjet]/F");
-  mytree->Branch("Phigenjet",Phigenjet, "Phigenjet[Ngenjet]/F");
-  mytree->Branch("Massgenjet",Massgenjet, "Massgenjet[Ngenjet]/F");
-
-  mytree->Branch("Npho",&Npho, "Npho/I");
-  mytree->Branch("Ptpho",Ptpho, "Ptpho[Npho]/F");
-  mytree->Branch("Etapho",Etapho, "Etapho[Npho]/F");
-  mytree->Branch("Phipho",Phipho, "Phipho[Npho]/F");
-  mytree->Branch("Masspho",Masspho, "Masspho[Npho]/F");
-  mytree->Branch("IDVarpho", IDVarpho, "IDVarpho[Npho]/F");
-  mytree->Branch("Isolationpho",Isolationpho, "Isolationpho[Npho]/F");
-  mytree->Branch("IDPasspho", IDPasspho, "IDPasspho[Npho]/i");
-  mytree->Branch("IsoPasspho", IsoPasspho, "IsoPasspho[Npho]/i");
-
-
-  mytree->Branch("Nelec",&Nelec, "Nelec/I");
-  mytree->Branch("Ptelec",Ptelec, "Ptelec[Nelec]/F");
-  mytree->Branch("Etaelec",Etaelec, "Etaelec[Nelec]/F");
-  mytree->Branch("Phielec",Phielec, "Phielec[Nelec]/F");
-  mytree->Branch("Masselec",Masselec, "Masselec[Nelec]/F");
-  mytree->Branch("Chargeelec",Chargeelec, "Chargeelec[Nelec]/I");
-  mytree->Branch("IDVarelec", IDVarelec, "IDVarelec[Nelec]/F");
-  mytree->Branch("Isolationelec",Isolationelec, "Isolationelec[Nelec]/F");
-  mytree->Branch("IDPasselec", IDPasselec, "IDPasselec[Nelec]/i");
-  mytree->Branch("IsoPasselec", IsoPasselec, "IsoPasselec[Nelec]/i");
+  { 
   
-  mytree->Branch("Nmuon",&Nmuon, "Nmuon/I");
-  mytree->Branch("Ptmuon",Ptmuon, "Ptmuon[Nmuon]/F");
-  mytree->Branch("Etamuon",Etamuon, "Etamuon[Nmuon]/F");
-  mytree->Branch("Phimuon",Phimuon, "Phimuon[Nmuon]/F");
-  mytree->Branch("Massmuon",Massmuon, "Massmuon[Nmuon]/F");
-  mytree->Branch("Chargemuon",Chargemuon, "Chargemuon[Nmuon]/I");
-  mytree->Branch("IDVarmuon", IDVarmuon, "IDVarmuon[Nmuon]/F");
-  mytree->Branch("Isolationmuon",Isolationmuon, "Isolationmuon[Nmuon]/F");
-  mytree->Branch("IDPassmuon", IDPassmuon, "IDPassmuon[Nmuon]/i");
-  mytree->Branch("IsoPassmuon", IsoPassmuon, "IsoPassmuon[Nmuon]/i");
   
-  mytree->Branch("Ntau",&Ntau, "Ntau/I");
-  mytree->Branch("Pttau",Pttau, "Pttau[Ntau]/F");
-  mytree->Branch("Etatau",Etatau, "Etatau[Ntau]/F");
-  mytree->Branch("Phitau",Phitau, "Phitau[Ntau]/F");
-  mytree->Branch("Masstau",Masstau, "Masstau[Ntau]/F");
-  mytree->Branch("Chargetau",Chargetau, "Chargetau[Ntau]/I");
-  mytree->Branch("DMtau",DMtau, "DMtau[Ntau]/F");
-  mytree->Branch("Isolationtau",Isolationtau, "Isolationtau[Ntau]/F");
-  mytree->Branch("IsoFunctiontau",IsoFunctiontau, "IsoFunctiontau[Ntau]/F");
-  mytree->Branch("IsoPasstau", IsoPasstau, "IsoPasstau[Ntau]/i");
-
-
-  mytree->Branch("Njet",&Njet, "Njet/I");
-  mytree->Branch("Ptjet",Ptjet, "Ptjet[Njet]/F");
-  mytree->Branch("Etajet",Etajet, "Etajet[Njet]/F");
-  mytree->Branch("Phijet",Phijet, "Phijet[Njet]/F");
-  mytree->Branch("Massjet",Massjet, "Massjet[Njet]/F");
-  mytree->Branch("IDPassjet", IDPassjet, "IDPassjet[Njet]/i");
-  mytree->Branch("bMVAjet",bMVAjet, "bMVAjet[Njet]/F");
-  mytree->Branch("DeepCSVjetTag1",DeepCSVjetTag1,"DeepCSVjetTag1[Njet]/F");
-  mytree->Branch("DeepCSVjetTag2",DeepCSVjetTag2,"DeepCSVjetTag2[Njet]/F");
-  
-
-  mytree->Branch("Nmet",&Nmet, "Nmet/I");
-  mytree->Branch("Met", Met, "Met[Nmet]/F");
-  mytree->Branch("Phimet",Phimet, "Phimet[Nmet]/F");
-
-
- 
-
-
-
-  if(debug_)      std::cout<<"Here I am : ending constructor "<<std::endl;
-
-
+    if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
+    
+    ME0Geometry_ = 0;
+    evt_size     = 0;
+    
+    usesResource("TFileService");
+    mytree   = fs_->make<TTree>("mytree","TestTree");
+    mytree->Branch("evt_size",&evt_size, "evt_size/I");
+    mytree->Branch("vtx_size",&vtx_size, "vtx_size/I");
+    mytree->Branch("vtx_pt2",vtx_pt2, "vtx_pt2[vtx_size]/F");
+    
+    mytree->Branch("genpart_size",&genpart_size, "genpart_size/I");
+    mytree->Branch("genpart_pid", genpart_pid, "genpart_pid[genpart_size]/I");
+    mytree->Branch("genpart_status",genpart_status, "genpart_status[genpart_size]/I");
+    mytree->Branch("genpart_pt",genpart_pt, "genpart_pt[genpart_size]/F");
+    mytree->Branch("genpart_eta",genpart_eta, "genpart_eta[genpart_size]/F");
+    mytree->Branch("genpart_phi",genpart_phi, "genpart_phi[genpart_size]/F");
+    mytree->Branch("genpart_mass",genpart_mass, "genpart_mass[genpart_size]/F");
+    mytree->Branch("genpart_m1",genpart_m1, "genpart_m1[genpart_size]/I");
+    mytree->Branch("genpart_m2",genpart_m2, "genpart_m2[genpart_size]/I");
+    mytree->Branch("genpart_d1",genpart_d1, "genpart_d1[genpart_size]/I");
+    mytree->Branch("genpart_d2",genpart_d2, "genpart_d2[genpart_size]/I");
+    
+    mytree->Branch("genjet_size",&genjet_size, "genjet_size/I");
+    mytree->Branch("genjet_pt",genjet_pt, "genjet_pt[genjet_size]/F");
+    mytree->Branch("genjet_eta",genjet_eta, "genjet_eta[genjet_size]/F");
+    mytree->Branch("genjet_phi",genjet_phi, "genjet_phi[genjet_size]/F");
+    mytree->Branch("genjet_mass",genjet_mass, "genjet_mass[genjet_size]/F");
+    
+    mytree->Branch("gamma_size",&gamma_size, "gamma_size/I");
+    mytree->Branch("gamma_pt",gamma_pt, "gamma_pt[gamma_size]/F");
+    mytree->Branch("gamma_eta",gamma_eta, "gamma_eta[gamma_size]/F");
+    mytree->Branch("gamma_phi",gamma_phi, "gamma_phi[gamma_size]/F");
+    mytree->Branch("gamma_mass",gamma_mass, "gamma_mass[gamma_size]/F");
+    mytree->Branch("gamma_idvar", gamma_idvar, "gamma_idvar[gamma_size]/F");
+    mytree->Branch("gamma_reliso",gamma_reliso, "gamma_reliso[gamma_size]/F");
+    mytree->Branch("gamma_idpass", gamma_idpass, "gamma_idpass[gamma_size]/i");
+    mytree->Branch("gamma_isopass", gamma_isopass, "gamma_isopass[gamma_size]/i");
+    
+    
+    mytree->Branch("elec_size",&elec_size, "elec_size/I");
+    mytree->Branch("elec_pt",elec_pt, "elec_pt[elec_size]/F");
+    mytree->Branch("elec_eta",elec_eta, "elec_eta[elec_size]/F");
+    mytree->Branch("elec_phi",elec_phi, "elec_phi[elec_size]/F");
+    mytree->Branch("elec_mass",elec_mass, "elec_mass[elec_size]/F");
+    mytree->Branch("elec_charge",elec_charge, "elec_charge[elec_size]/I");
+    mytree->Branch("elec_idvar", elec_idvar, "elec_idvar[elec_size]/F");
+    mytree->Branch("elec_reliso",elec_reliso, "elec_reliso[elec_size]/F");
+    mytree->Branch("elec_idpass",elec_idpass, "elec_idpass[elec_size]/i");
+    mytree->Branch("elec_isopass", elec_isopass, "elec_isopass[elec_size]/i");
+    
+    mytree->Branch("muon_size",&muon_size, "muon_size/I");
+    mytree->Branch("muon_pt",muon_pt, "muon_pt[muon_size]/F");
+    mytree->Branch("muon_eta",muon_eta, "muon_eta[muon_size]/F");
+    mytree->Branch("muon_phi",muon_phi, "muon_phi[muon_size]/F");
+    mytree->Branch("muon_mass",muon_mass, "muon_mass[muon_size]/F");
+    mytree->Branch("muon_charge",muon_charge, "muon_charge[muon_size]/I");
+    mytree->Branch("muon_idvar", muon_idvar, "muon_idvar[muon_size]/F");
+    mytree->Branch("muon_reliso",muon_reliso, "muon_reliso[muon_size]/F");
+    mytree->Branch("muon_idpass", muon_idpass, "muon_idpass[muon_size]/i");
+    mytree->Branch("muon_isopass", muon_isopass, "muon_isopass[muon_size]/i");
+    
+    mytree->Branch("tau_size",&tau_size, "tau_size/I");
+    mytree->Branch("tau_pt",tau_pt, "tau_pt[tau_size]/F");
+    mytree->Branch("tau_eta",tau_eta, "tau_eta[tau_size]/F");
+    mytree->Branch("tau_phi",tau_phi, "tau_phi[tau_size]/F");
+    mytree->Branch("tau_mass",tau_mass, "tau_mass[tau_size]/F");
+    mytree->Branch("tau_charge",tau_charge, "tau_charge[tau_size]/I");
+    mytree->Branch("tau_decaymode",tau_decaymode, "tau_decaymode[tau_size]/F");
+    mytree->Branch("tau_reliso",tau_reliso, "tau_reliso[tau_size]/F");
+    mytree->Branch("tau_isofunction",tau_isofunction, "tau_isofunction[tau_size]/F");
+    mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
+    
+    
+    mytree->Branch("jet_size",&jet_size, "jet_size/I");
+    mytree->Branch("jet_pt",jet_pt, "jet_pt[jet_size]/F");
+    mytree->Branch("jet_eta",jet_eta, "jet_eta[jet_size]/F");
+    mytree->Branch("jet_phi",jet_phi, "jet_phi[jet_size]/F");
+    mytree->Branch("jet_mass",jet_mass, "jet_mass[jet_size]/F");
+    mytree->Branch("jet_idpass", jet_idpass, "jet_idpass[jet_size]/i");
+    mytree->Branch("jet_bMVA",jet_bMVA, "jet_bMVA[jet_size]/F");
+    mytree->Branch("jet_deepcsvtag1",jet_deepcsvtag1,"jet_deepcsvtag1[jet_size]/F");
+    mytree->Branch("jet_deepcsvtag2",jet_deepcsvtag2,"jet_deepcsvtag2[jet_size]/F");
+    
+    
+    mytree->Branch("met_size",&met_size, "met_size/I");
+    mytree->Branch("met_pt", met_pt, "met_pt[met_size]/F");
+    mytree->Branch("met_phi",met_phi, "met_phi[met_size]/F");
+    if(debug_)      std::cout<<"Here I am : ending constructor "<<std::endl;
 }
+  
+  
 
 
 Validator::~Validator()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
+{}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
+void 
 Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  using namespace edm;
+  if(debug_) std::cout<<"here starts the event:"<<std::endl;
+  
+  Handle<std::vector<reco::Vertex>> vertices;
+  iEvent.getByToken(verticesToken_, vertices);
 
-   using namespace edm;
-   if(debug_) std::cout<<"here starts the event:"<<std::endl;
+  Handle<std::vector<reco::GenParticle>> genParts;
+  iEvent.getByToken(genPartsToken_, genParts);
 
-   Handle<std::vector<reco::Vertex>> vertices;
-   iEvent.getByToken(verticesToken_, vertices);
+  Handle<std::vector<reco::GenJet>> genJets;
+  iEvent.getByToken(genJetsToken_, genJets);
 
-   Handle<std::vector<reco::GenParticle>> genParts;
-   iEvent.getByToken(genPartsToken_, genParts);
-   
-   Handle<std::vector<reco::GenJet>> genJets;
-   iEvent.getByToken(genJetsToken_, genJets);
+  Handle<std::vector<pat::Photon>> photns;
+  iEvent.getByToken(photnsToken_, photns);
 
-   Handle<std::vector<pat::Photon>> photns;
-   iEvent.getByToken(photnsToken_, photns);
-   
-   Handle<std::vector<pat::Electron>> elecs;
-   iEvent.getByToken(elecsToken_, elecs);
-   
-   Handle<std::vector<pat::Muon>> muons;
-   iEvent.getByToken(muonsToken_, muons);
+  Handle<std::vector<pat::Electron>> elecs;
+  iEvent.getByToken(elecsToken_, elecs);
 
-   Handle<std::vector<pat::Tau>> taus;
-   iEvent.getByToken(tausToken_, taus);
-   
-   Handle<std::vector<pat::Jet>> jets;
-   iEvent.getByToken(jetsToken_, jets);
-   
-   Handle<std::vector<pat::MET>> met;
-   iEvent.getByToken(metToken_, met);
+  Handle<std::vector<pat::Muon>> muons;
+  iEvent.getByToken(muonsToken_, muons);
 
-   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
-   Nvtx          = 0;
-   Ngenjet       = 0;
-   Ngenparticle  = 0;
-   Nelec         = 0;
-   Njet          = 0;
-   Nmuon         = 0;
-   Nmet          = 0;
-   Npho          = 0;
-   Ntau          = 0;
+  Handle<std::vector<pat::Tau>> taus;
+  iEvent.getByToken(tausToken_, taus);
 
-   if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl;  
+  Handle<std::vector<pat::Jet>> jets;
+  iEvent.getByToken(jetsToken_, jets);
 
-   Nevt++;
+  Handle<std::vector<pat::MET>> met;
+  iEvent.getByToken(metToken_, met);
+  
+  if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
+  vtx_size      = 0;
+  genjet_size   = 0;
+  genpart_size  = 0;
+  elec_size     = 0;
+  jet_size      = 0;
+  muon_size     = 0;
+  met_size      = 0;
+  gamma_size    = 0;
+  tau_size      = 0;
 
+  if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl;  
 
-   /////////////////////////////
-   //////vertices info//////
-   /////////////////////////////
-
-   int prVtx = -1;
-   for (size_t i = 0; i < vertices->size(); i++) {
-     if (vertices->at(i).isFake()) continue;
-     if (vertices->at(i).ndof() <= 4) continue;
-     if (prVtx < 0) prVtx = i;
-     Vtx_pt2[Nvtx] = vertices->at(i).p4().pt();
-     Nvtx++;
-   }
-   if (prVtx < 0) return;
-   if(debug_)  std::cout<<"Here I am : got vertex infor right "<<std::endl;
+  evt_size++;
 
 
+  /////////////////////////////
+  //////vertices info//////
+  /////////////////////////////
+
+  int prVtx = -1;
+  for (size_t i = 0; i < vertices->size(); i++) {
+    if (vertices->at(i).isFake()) continue;
+    if (vertices->at(i).ndof() <= 4) continue;
+    if (prVtx < 0) prVtx = i;
+    vtx_pt2[vtx_size] = vertices->at(i).p4().pt();
+    vtx_size++;
+  }
+  if (prVtx < 0) return;
+  if(debug_)  std::cout<<"Here I am : got vertex infor right "<<std::endl;
 
 
-   
-   /////////////////////////////
-   //////Gen Particle info//////
-   /////////////////////////////
-   vector<const reco::Candidate *> vectorCandidate;
-   vector<const reco::Candidate *>::iterator itCandidate;
+  
+  
+  
+  /////////////////////////////
+  //////Gen Particle info//////
+  /////////////////////////////
+  vector<const reco::Candidate *> vectorCandidate;
+  vector<const reco::Candidate *>::iterator itCandidate;
 
-   for( vector<reco::GenParticle>::const_iterator itPackedParticle = genParts->begin(); itPackedParticle != genParts->end(); ++itPackedParticle)
-     {
-       vectorCandidate.push_back(&*itPackedParticle);
-     }
+  for( vector<reco::GenParticle>::const_iterator itPackedParticle = genParts->begin(); itPackedParticle != genParts->end(); ++itPackedParticle)
+    {
+      vectorCandidate.push_back(&*itPackedParticle);
+    }
+  
+  //GenParticle information
+  for (size_t i = 0; i < genParts->size(); i++) {
 
-   //GenParticle information
-   for (size_t i = 0; i < genParts->size(); i++) {
+    genpart_pid[genpart_size]       = genParts->at(i).pdgId();
+    genpart_status[genpart_size]    = genParts->at(i).status();
+    genpart_pt[genpart_size]        = genParts->at(i).pt();
+    genpart_phi[genpart_size]       = genParts->at(i).phi();
+    genpart_eta[genpart_size]       = genParts->at(i).eta();
+    genpart_mass[genpart_size]      = genParts->at(i).mass();
+    if(genParts->at(i).mother())
+      {
+	itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).mother());
+	if(itCandidate != vectorCandidate.end())
+	  {
+	    genpart_m1[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+	    genpart_m2[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+	  }
+	
+      }
+    else
+      {
+	genpart_m1[genpart_size] =-99;
+	genpart_m2[genpart_size] =-99;
+      }
+    
+    
+    itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(0));
+    if(itCandidate != vectorCandidate.end()) genpart_d1[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+    
+    itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(genParts->at(i).numberOfDaughters() - 1));
+    if(itCandidate != vectorCandidate.end()) genpart_d2[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+    genpart_size++;
+    if(genpart_size>kMaxParticle) break;       
+  }
+  if(debug_)   std::cout<<"Here I am : got genpart infor right "<<std::endl;
+  
+  
+  /////////////////////////////
+  //GenJet information
+  /////////////////////////////
+  std::vector<size_t> jGenJets;                                            
+  for(size_t ij= 0 ; ij < genJets->size(); ij++)
+    {
+      if (genJets->at(ij).pt() < 20.) continue;
+      if (fabs(genJets->at(ij).eta()) > 5) continue;
+      
+      bool overlaps = false;
+      for (size_t j = 0; j < genParts->size(); j++) {
+	if (abs(genParts->at(j).pdgId()) != 11 && abs(genParts->at(j).pdgId()) != 13) continue;
+	if (fabs(genJets->at(ij).pt()-genParts->at(j).pt()) < 0.01*genParts->at(j).pt() && ROOT::Math::VectorUtil::DeltaR(genParts->at(j).p4(),genJets->at(ij).p4()) < 0.01) {
+	  overlaps = true;
+	  break;
+	}
+      }
+      if (overlaps) continue;
+      jGenJets.push_back(ij);
+      
+      genjet_pt[genjet_size]  = genJets->at(ij).pt();
+      genjet_eta[genjet_size] = genJets->at(ij).eta();
+      genjet_phi[genjet_size] = genJets->at(ij).phi();
+      genjet_mass[genjet_size]= genJets->at(ij).mass();
+      genjet_size++;
 
-     PIdgenparticle[Ngenparticle]       = genParts->at(i).pdgId();
-     Statusgenparticle[Ngenparticle]    = genParts->at(i).status();
-     Ptgenparticle[Ngenparticle]        = genParts->at(i).pt();
-     Phigenparticle[Ngenparticle]       = genParts->at(i).phi();
-     Etagenparticle[Ngenparticle]       = genParts->at(i).eta();
-     Massgenparticle[Ngenparticle]      = genParts->at(i).mass();
-     if(genParts->at(i).mother())
-       {
-     	 itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).mother());
-	 if(itCandidate != vectorCandidate.end())
-	   {
-	     M1genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
-	     M2genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
-	   }
+      if(genjet_size>kMaxGenJet) break;       
+    }
+  if(debug_)   std::cout<<"Here I am : got genjet infor right "<<std::endl;
+  
+  /////////////////////////////
+  //Photon information         
+  /////////////////////////////                                                                                                
+  for(size_t ip= 0 ; ip < photns->size(); ip++)
+    {
+      if(photns->at(ip).pt() < 10.) continue;
+      if(fabs(photns->at(ip).eta()) > 3.) continue;
+      float mvaValue = photns->at(ip).userFloat("mvaValue");
+      bool isEB = photns->at(ip).isEB();
+      bool isLoose(0), isMedium(0), isTight(0);
+      
+      if( isEB )
+	{
+	  isLoose  = (mvaValue > 0.00);
+	  isMedium = (mvaValue > 0.2); 
+	  isTight  = (mvaValue > 0.56);
+	}     
+      else
+	{
+	  isLoose = (mvaValue > 0.20);
+	  isMedium = (mvaValue > 0.4); 
+	  isTight = (mvaValue > 0.68);
+	}          
+      
+      gamma_pt[gamma_size]        = photns->at(ip).pt();
+      gamma_eta[gamma_size]       = photns->at(ip).eta();
+      gamma_phi[gamma_size]       = photns->at(ip).phi();
+      gamma_mass[gamma_size]      = photns->at(ip).mass();
+      gamma_idvar[gamma_size]     = mvaValue; // MVA
+      gamma_reliso[gamma_size] = 1.;
+      
+      
+      if(isLoose)
+	gamma_idpass[gamma_size] |= 1 << 0;
+      
+      if(isMedium)
+	gamma_idpass[gamma_size] |= 1 << 1;
+      
+      if(isTight)
+	gamma_idpass[gamma_size] |= 1 << 2;
+      
+      if(gamma_reliso[gamma_size] < 0.1)
+	gamma_isopass[gamma_size] |= 1 << 0;
+      
+      if(gamma_reliso[gamma_size] < 0.2)
+	 gamma_isopass[gamma_size] |= 1 << 1;
+      
+      if(gamma_reliso[gamma_size] < 0.3)
+	gamma_isopass[gamma_size] |= 1 << 2;
+      
+      if(gamma_reliso[gamma_size] < 0.4)
+	gamma_isopass[gamma_size] |= 1 << 3;
+      
+      gamma_size++;
+      if(gamma_size>kMaxPhoton) break;
+    }
+  if(debug_)   std::cout<<"Here I am : got pho infor right "<<std::endl;
+  
+  /////////////////////////////
+  //Electron information
+  /////////////////////////////                       
+  for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
+    if(elecs->at(ie).pt() < 10.) continue;
+    if (fabs(elecs->at(ie).eta()) > 3.) continue;
+    float mvaValue = elecs->at(ie).userFloat("mvaValue");
+    elec_pt[elec_size]               = elecs->at(ie).pt();
+    elec_eta[elec_size]              = elecs->at(ie).eta();
+    elec_phi[elec_size]              = elecs->at(ie).phi();
+    elec_mass[elec_size]             = elecs->at(ie).mass();
+    elec_charge[elec_size]           = elecs->at(ie).charge();
+    elec_idvar[elec_size]            = mvaValue; //MVA
+    bool isEB = elecs->at(ie).isEB();
+    if(isEB) 
+      elec_reliso[elec_size] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
+    else 
+      elec_reliso[elec_size] = (elecs->at(ie).userFloat("hgcElectronID:caloIsoRing1") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing2") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing3") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing4")) / elecs->at(ie).energy();
 
-       }
-     else
-       {
-	 M1genparticle[Ngenparticle] =-99;
-	 M2genparticle[Ngenparticle] =-99;
-       }
-
-
-     itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(0));
-     if(itCandidate != vectorCandidate.end()) D1genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
-
-     itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(genParts->at(i).numberOfDaughters() - 1));
-     if(itCandidate != vectorCandidate.end()) D2genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
-     Ngenparticle++;
-     if(Ngenparticle>kMaxParticle) break;       
-   }
-   if(debug_)   std::cout<<"Here I am : got genpart infor right "<<std::endl;
-
-
-   /////////////////////////////
-   //GenJet information
-   /////////////////////////////
-   std::vector<size_t> jGenJets;                                            
-   for(size_t ij= 0 ; ij < genJets->size(); ij++)
-     {
-       if (genJets->at(ij).pt() < 20.) continue;
-       if (fabs(genJets->at(ij).eta()) > 5) continue;
-
-       bool overlaps = false;
-       for (size_t j = 0; j < genParts->size(); j++) {
-	 if (abs(genParts->at(j).pdgId()) != 11 && abs(genParts->at(j).pdgId()) != 13) continue;
-	 if (fabs(genJets->at(ij).pt()-genParts->at(j).pt()) < 0.01*genParts->at(j).pt() && ROOT::Math::VectorUtil::DeltaR(genParts->at(j).p4(),genJets->at(ij).p4()) < 0.01) {
-	   overlaps = true;
-	   break;
-	 }
-       }
-       if (overlaps) continue;
-       jGenJets.push_back(ij);
-
-       Ptgenjet[Ngenjet] = genJets->at(ij).pt();
-       Etagenjet[Ngenjet]= genJets->at(ij).eta();
-       Phigenjet[Ngenjet]= genJets->at(ij).phi();
-       Massgenjet[Ngenjet]= genJets->at(ij).mass();
-       Ngenjet++;
-
-       if(Ngenjet>kMaxGenJet) break;       
-     }
-   if(debug_)   std::cout<<"Here I am : got genjet infor right "<<std::endl;
-   
-   /////////////////////////////
-   //Photon information         
-   /////////////////////////////                                                                                                
-   for(size_t ip= 0 ; ip < photns->size(); ip++)
-     {
-       if(photns->at(ip).pt() < 10.) continue;
-       if(fabs(photns->at(ip).eta()) > 3.) continue;
-       float mvaValue = photns->at(ip).userFloat("mvaValue");
-       bool isEB = photns->at(ip).isEB();
-       bool isLoose(0), isMedium(0), isTight(0);
-
-       if( isEB )
-       	 {
-       	   isLoose  = (mvaValue > 0.00);
- 	   isMedium = (mvaValue > 0.2); 
-       	   isTight  = (mvaValue > 0.56);
-       	 }     
-       else
-       	 {
-       	   isLoose = (mvaValue > 0.20);
- 	   isMedium = (mvaValue > 0.4); 
-       	   isTight = (mvaValue > 0.68);
-       	 }          
-       
-       Ptpho[Npho]        = photns->at(ip).pt();
-       Etapho[Npho]       = photns->at(ip).eta();
-       Phipho[Npho]       = photns->at(ip).phi();
-       Masspho[Npho]      = photns->at(ip).mass();
-       IDVarpho[Npho]     = mvaValue; // MVA
-       Isolationpho[Npho] = 1.;
-       
-
-       if(isLoose)
-	 IDPasspho[Npho] |= 1 << 0;
-
-       if(isMedium)
-	 IDPasspho[Npho] |= 1 << 1;
-       
-       if(isTight)
-	 IDPasspho[Npho] |= 1 << 2;
-       
-       if(Isolationpho[Npho] < 0.1)
-	 IsoPasspho[Npho] |= 1 << 0;
-
-       if(Isolationpho[Npho] < 0.2)
-	 IsoPasspho[Npho] |= 1 << 1;
-
-       if(Isolationpho[Npho] < 0.3)
-	 IsoPasspho[Npho] |= 1 << 2;
-
-       if(Isolationpho[Npho] < 0.4)
-	 IsoPasspho[Npho] |= 1 << 3;
-
-       
-
-       Npho++;
-       if(Npho>kMaxPhoton) break;
-     }
-   if(debug_)   std::cout<<"Here I am : got pho infor right "<<std::endl;
-
-   /////////////////////////////
-   //Electron information
-   /////////////////////////////                       
-   for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
-     if(elecs->at(ie).pt() < 10.) continue;
-     if (fabs(elecs->at(ie).eta()) > 3.) continue;
-     float mvaValue = elecs->at(ie).userFloat("mvaValue");
-     Ptelec[Nelec]               = elecs->at(ie).pt();
-     Etaelec[Nelec]              = elecs->at(ie).eta();
-     Phielec[Nelec]              = elecs->at(ie).phi();
-     Masselec[Nelec]             = elecs->at(ie).mass();
-     Chargeelec[Nelec]           = elecs->at(ie).charge();
-     IDVarelec[Nelec]            = mvaValue; //MVA
-     bool isEB = elecs->at(ie).isEB();
-     if(isEB) 
-       Isolationelec[Nelec] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
-     else 
-       Isolationelec[Nelec] = (elecs->at(ie).userFloat("hgcElectronID:caloIsoRing1") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing2") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing3") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing4")) / elecs->at(ie).energy();
-
-     bool isLoose(0), isMedium(0), isTight(0);
-   
-     if( isEB ) {
-       if (elecs->at(ie).pt() < 20.) {
-     	 isLoose = (mvaValue  > -0.661);
-     	 isMedium = (mvaValue > 0.885);
-     	 isTight = (mvaValue  > 0.986);
-     	 
-     
-       }
-       else {
-     	 isLoose = (mvaValue  > -0.797);
-     	 isMedium = (mvaValue > 0.723);
-     	 isTight = (mvaValue  > 0.988);
-       }
-     }
-     else {
-       if (not (elecs->at(ie).userFloat("hgcElectronID:ecEnergy") > 0)) continue;
-       if (not (elecs->at(ie).userFloat("hgcElectronID:sigmaUU") > 0)) continue;
-       if (not (elecs->at(ie).fbrem() > -1)) continue;
-       if (not (elecs->at(ie).userFloat("hgcElectronID:measuredDepth") < 40)) continue;
-       if (not (elecs->at(ie).userFloat("hgcElectronID:nLayers") > 20)) continue;
-       if (elecs->at(ie).pt() < 20.) {
-     	 isLoose = (mvaValue  > -0.320);
-     	 isMedium = (mvaValue > 0.777);
-     	 isTight = (mvaValue  > 0.969);
-       }
-       else {
-     	 isLoose = (mvaValue  > -0.919);
-     	 isMedium = (mvaValue > 0.591);
-     	 isTight = (mvaValue  > 0.983);
-       }
-     }
-
-     if(isLoose)
-       IDPasselec[Nelec] |= 1 << 0;
-
-     if(isMedium)
-       IDPasselec[Nelec] |= 1 << 1;
-
-     if(isTight)
-       IDPasselec[Nelec] |= 1 << 2;
-
-
-     if(Isolationelec[Nelec] < 0.1)
-       IsoPasselec[Nelec] |= 1 << 0;
-     
-     if(Isolationelec[Nelec] < 0.2)
-       IsoPasselec[Nelec] |= 1 << 1;
-     
-     if(Isolationelec[Nelec] < 0.3)
-       IsoPasselec[Nelec] |= 1 << 2;
-     
-     if(Isolationelec[Nelec] < 0.4)
-       IsoPasselec[Nelec] |= 1 << 3;
-          
-     Nelec++;
-    if(Nelec>kMaxElectron) break;
-   }
-   
-   //std::cout<<Nelec<<std::endl;
-   if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
-   
-   /////////////////////////////
-   // Muon information
-   /////////////////////////////
-   for(size_t im= 0 ; im < muons->size(); im++)
-     {
-    if (muons->at(im).pt() < 2.) continue;
-    if (fabs(muons->at(im).eta()) > 2.8) continue;
-
-	   Ptmuon[Nmuon]               = muons->at(im).pt();
-	   Etamuon[Nmuon]              = muons->at(im).eta();
-	   Phimuon[Nmuon]              = muons->at(im).phi();
-	   Massmuon[Nmuon]             = muons->at(im).mass();
-	   Chargemuon[Nmuon]           = muons->at(im).charge();
-	   Isolationmuon[Nmuon]        = muons->at(im).trackIso()/muons->at(im).pt();
-	   IsoPassmuon[Nmuon]          = muons->at(im).mass();
-	   IDVarmuon[Nmuon]            = 1.0;
-	   double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
-	   double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
-
-	   int isLoose = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
-	   if(isLoose)
-	     IDPassmuon[Nmuon] |= 1 << 0;
-
-	   //// isLoose = isMedium
-	   int isMedium = isLoose;
-	   if(isMedium)
-	     IDPassmuon[Nmuon] |= 1 << 1;
-	   
-	   	   
-	   bool ipxy = false, ipz = false, validPxlHit = false, highPurity = false;
-	   if (muons->at(im).innerTrack().isNonnull()){
-	     ipxy = std::abs(muons->at(im).muonBestTrack()->dxy(vertices->at(prVtx).position())) < 0.2;
-	     ipz = std::abs(muons->at(im).muonBestTrack()->dz(vertices->at(prVtx).position())) < 0.5;
-	     validPxlHit = muons->at(im).innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-	     highPurity = muons->at(im).innerTrack()->quality(reco::Track::highPurity);
-	   }      
-	   dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.032);
-	   dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0041);
-	   int isTight = (int) (fabs(muons->at(im).eta()) < 2.4 && vertices->size() > 0 && muon::isTightMuon(muons->at(im),vertices->at(prVtx))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.048, dPhiCut, dPhiBendCut, iSetup) && ipxy && ipz && validPxlHit && highPurity);
-	   if(isTight)
-	     IDPassmuon[Nmuon] |= 1 << 2;
-	   
-	   
-	   
-	   //CutBasedIdLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdLoose);
-	   //CutBasedIdMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdMedium);
-	   //CutBasedIdTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdTight);
-	   //PFIsoLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoLoose);
-	   //PFIsoMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoMedium);
-	   //
-	   //PFIsoTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoTight);
-
-
-
-	   if(Isolationmuon[Nmuon] < 0.1)
-	     IsoPassmuon[Nmuon] |= 1 << 0;
-	   
-	   if(Isolationmuon[Nmuon] < 0.2)
-	     IsoPassmuon[Nmuon] |= 1 << 1;
-	   
-	   if(Isolationmuon[Nmuon] < 0.3)
-	     IsoPassmuon[Nmuon] |= 1 << 2;
-	   
-	   if(Isolationmuon[Nmuon] < 0.4)
-	     IsoPassmuon[Nmuon] |= 1 << 3;
-
-
-
-	   Nmuon++;
-	   if(Nmuon>kMaxMuonLoose) break;
-     }
-     
+    bool isLoose(0), isMedium(0), isTight(0);
+    
+    if( isEB ) {
+      if (elecs->at(ie).pt() < 20.) {
+	isLoose = (mvaValue  > -0.661);
+	isMedium = (mvaValue > 0.885);
+	isTight = (mvaValue  > 0.986);
+     	
+	
+      }
+      else {
+	isLoose = (mvaValue  > -0.797);
+	isMedium = (mvaValue > 0.723);
+	isTight = (mvaValue  > 0.988);
+      }
+    }
+    else {
+      if (not (elecs->at(ie).userFloat("hgcElectronID:ecEnergy") > 0)) continue;
+      if (not (elecs->at(ie).userFloat("hgcElectronID:sigmaUU") > 0)) continue;
+      if (not (elecs->at(ie).fbrem() > -1)) continue;
+      if (not (elecs->at(ie).userFloat("hgcElectronID:measuredDepth") < 40)) continue;
+      if (not (elecs->at(ie).userFloat("hgcElectronID:nLayers") > 20)) continue;
+      if (elecs->at(ie).pt() < 20.) {
+	isLoose = (mvaValue  > -0.320);
+	isMedium = (mvaValue > 0.777);
+	isTight = (mvaValue  > 0.969);
+      }
+      else {
+	isLoose = (mvaValue  > -0.919);
+	isMedium = (mvaValue > 0.591);
+	isTight = (mvaValue  > 0.983);
+      }
+    }
+    
+    if(isLoose)
+      elec_idpass[elec_size] |= 1 << 0;
+    
+    if(isMedium)
+      elec_idpass[elec_size] |= 1 << 1;
+    
+    if(isTight)
+      elec_idpass[elec_size] |= 1 << 2;
+    
+    
+    if(elec_reliso[elec_size] < 0.1)
+      elec_isopass[elec_size] |= 1 << 0;
+    
+    if(elec_reliso[elec_size] < 0.2)
+      elec_isopass[elec_size] |= 1 << 1;
+    
+    if(elec_reliso[elec_size] < 0.3)
+      elec_isopass[elec_size] |= 1 << 2;
+    
+    if(elec_reliso[elec_size] < 0.4)
+      elec_isopass[elec_size] |= 1 << 3;
+    
+    elec_size++;
+    if(elec_size>kMaxElectron) break;
+  }
+  
+  //std::cout<<elec_size<<std::endl;
+  if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
+  
+  /////////////////////////////
+  // Muon information
+  /////////////////////////////
+  for(size_t im= 0 ; im < muons->size(); im++)
+    {
+      if (muons->at(im).pt() < 2.) continue;
+      if (fabs(muons->at(im).eta()) > 2.8) continue;
+      
+      muon_pt[muon_size]               = muons->at(im).pt();
+      muon_eta[muon_size]              = muons->at(im).eta();
+      muon_phi[muon_size]              = muons->at(im).phi();
+      muon_mass[muon_size]             = muons->at(im).mass();
+      muon_charge[muon_size]           = muons->at(im).charge();
+      muon_reliso[muon_size]           = muons->at(im).trackIso()/muons->at(im).pt();
+      muon_isopass[muon_size]          = muons->at(im).mass();
+      muon_idvar[muon_size]            = 1.0;
+      double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
+      double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
+      
+      int isLoose = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
+      if(isLoose)
+	muon_idpass[muon_size] |= 1 << 0;
+      
+      //// isLoose = isMedium
+      int isMedium = isLoose;
+      if(isMedium)
+	muon_idpass[muon_size] |= 1 << 1;
+      
+      
+      bool ipxy = false, ipz = false, validPxlHit = false, highPurity = false;
+      if (muons->at(im).innerTrack().isNonnull()){
+	ipxy = std::abs(muons->at(im).muonBestTrack()->dxy(vertices->at(prVtx).position())) < 0.2;
+	ipz = std::abs(muons->at(im).muonBestTrack()->dz(vertices->at(prVtx).position())) < 0.5;
+	validPxlHit = muons->at(im).innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+	highPurity = muons->at(im).innerTrack()->quality(reco::Track::highPurity);
+      }      
+      dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.032);
+      dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0041);
+      int isTight = (int) (fabs(muons->at(im).eta()) < 2.4 && vertices->size() > 0 && muon::isTightMuon(muons->at(im),vertices->at(prVtx))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.048, dPhiCut, dPhiBendCut, iSetup) && ipxy && ipz && validPxlHit && highPurity);
+      if(isTight)
+	muon_idpass[muon_size] |= 1 << 2;
+      
+      
+      
+      //CutBasedIdLoosemuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdLoose);
+      //CutBasedIdMediummuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdMedium);
+      //CutBasedIdTightmuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdTight);
+      //PFIsoLoosemuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoLoose);
+      //PFIsoMediummuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoMedium);
+      //
+      //PFIsoTightmuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoTight);
+      
+      
+      
+      if(muon_reliso[muon_size] < 0.1)
+	muon_isopass[muon_size] |= 1 << 0;
+      
+      if(muon_reliso[muon_size] < 0.2)
+	muon_isopass[muon_size] |= 1 << 1;
+      
+      if(muon_reliso[muon_size] < 0.3)
+	muon_isopass[muon_size] |= 1 << 2;
+      
+      if(muon_reliso[muon_size] < 0.4)
+	muon_isopass[muon_size] |= 1 << 3;
+      
+      
+      
+      muon_size++;
+      if(muon_size>kMaxMuonLoose) break;
+    }
+  
    if(debug_)   std::cout<<"Here I am : got muon infor right "<<std::endl;
    //std::cout<<"Muon"<<std::endl;
-
+   
    /////////////////////////////
    // Taus info
    /////////////////////////////
@@ -678,33 +657,33 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (fabs(taus->at(it).eta()) > 3.0) continue;
      if (taus->at(it).tauID("decayModeFinding")<0) continue;     
      
+     
+     tau_pt[tau_size]          = taus->at(it).pt();
+     tau_eta[tau_size]         = taus->at(it).eta();
+     tau_phi[tau_size]         = taus->at(it).phi();
+     tau_mass[tau_size]        = taus->at(it).mass();
+     tau_charge[tau_size]      = taus->at(it).charge();
+     tau_decaymode[tau_size]   = taus->at(it).decayMode();
+     float ChargedIsoTau       = taus->at(it).tauID("chargedIsoPtSumdR03");
+     float NeutralIsoTau       = taus->at(it).tauID("neutralIsoPtSumdR03");
+     tau_reliso[tau_size]      = ChargedIsoTau + 0.2*max(0.,NeutralIsoTau - 5.) / taus->at(it).pt();
+     tau_isofunction[tau_size] = calculate_demetraIsolation(taus->at(it));
+     
+     if(tau_reliso[tau_size] < 0.1)
+       tau_isopass[tau_size] |= 1 << 0;
+     
+     if(tau_reliso[tau_size] < 0.2)
+       tau_isopass[tau_size] |= 1 << 1;
 
-     Pttau[Ntau]         = taus->at(it).pt();
-     Etatau[Ntau]        = taus->at(it).eta();
-     Phitau[Ntau]        = taus->at(it).phi();
-     Masstau[Ntau]       = taus->at(it).mass();
-     Chargetau[Ntau]     = taus->at(it).charge();
-     DMtau[Ntau]         = taus->at(it).decayMode();
-     float ChargedIsoTau = taus->at(it).tauID("chargedIsoPtSumdR03");
-     float NeutralIsoTau = taus->at(it).tauID("neutralIsoPtSumdR03");
-     Isolationtau[Ntau]  = ChargedIsoTau + 0.2*max(0.,NeutralIsoTau - 5.) / taus->at(it).pt();
-     IsoFunctiontau[Ntau]= calculate_demetraIsolation(taus->at(it));
+     if(tau_reliso[tau_size] < 0.3)
+	 tau_isopass[tau_size] |= 1 << 2;
      
-     if(Isolationtau[Ntau] < 0.1)
-       IsoPasstau[Ntau] |= 1 << 0;
-     
-     if(Isolationtau[Ntau] < 0.2)
-       IsoPasstau[Ntau] |= 1 << 1;
-
-     if(Isolationtau[Ntau] < 0.3)
-	 IsoPasstau[Ntau] |= 1 << 2;
-     
-     if(Isolationtau[Ntau] < 0.4)
-       IsoPasstau[Ntau] |= 1 << 3;
+     if(tau_reliso[tau_size] < 0.4)
+       tau_isopass[tau_size] |= 1 << 3;
      
 
-     Ntau++;
-     if(Ntau>kMaxTau) break; 
+     tau_size++;
+     if(tau_size>kMaxTau) break; 
    }
    
    if(debug_)   std::cout<<"Here I am : got tau infor right "<<std::endl;
@@ -718,10 +697,10 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        //if (jets->at(ij).pt() < 20.) continue;
        //if (fabs(jets->at(ij).eta()) > 5) continue;
        //
-       Ptjet[Njet]  = jets->at(ij).pt();
-       Etajet[Njet] = jets->at(ij).eta();
-       Phijet[Njet] = jets->at(ij).phi();
-       Massjet[Njet]= jets->at(ij).mass();
+       jet_pt[jet_size]  = jets->at(ij).pt();
+       jet_eta[jet_size] = jets->at(ij).eta();
+       jet_phi[jet_size] = jets->at(ij).phi();
+       jet_mass[jet_size]= jets->at(ij).mass();
 
        bool isLoose(0), isMedium(0), isTight(0);
        if( (jets->at(ij).numberOfDaughters() > 1 ) && ( jets->at(ij).neutralEmEnergyFraction()< 0.99 ) && ( jets->at(ij).neutralHadronEnergyFraction() < 0.99 ))
@@ -735,25 +714,25 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
 
        if(isLoose)
-	 IDPassjet[Njet] |= 1 << 0;
+	 jet_idpass[jet_size] |= 1 << 0;
 	   
        if(isMedium)
-	 IDPassjet[Njet] |= 1 << 1;
+	 jet_idpass[jet_size] |= 1 << 1;
 
        if(isTight)
-	 IDPassjet[Njet] |= 1 << 2;
+	 jet_idpass[jet_size] |= 1 << 2;
        
-       bMVAjet[Njet]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");
-       DeepCSVjetTag1[Njet]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
-       DeepCSVjetTag2[Njet]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
+       jet_bMVA[jet_size]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");
+       jet_deepcsvtag1[jet_size]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
+       jet_deepcsvtag2[jet_size]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
           
        if(debug_)
 	 {
 	   std::cout<<"Btaggers::::::::pfCombinedMVAV2BJetTags/pfDeepCSVJetTags:probb/pfDeepCSVJetTags:probbb:::::::::::::"<<std::endl;
-	   std::cout<<bMVAjet[Njet]<<" / "<< DeepCSVjetTag1[Njet] <<" / "<< DeepCSVjetTag2[Njet] <<std::endl;
+	   std::cout<<jet_bMVA[jet_size]<<" / "<< jet_deepcsvtag1[jet_size] <<" / "<< jet_deepcsvtag2[jet_size] <<std::endl;
 	 }
-       Njet++;
-       if(Njet>kMaxJet) break;
+       jet_size++;
+       if(jet_size>kMaxJet) break;
      }
    if(debug_)   std::cout<<"Here I am : got jet infor right "<<std::endl;
    
@@ -763,9 +742,9 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /////////////////////////////
    for(size_t imet= 0 ; imet < met->size(); imet++)
      {
-       Met[Nmet]    = met->at(imet).pt();
-       Phimet[Nmet] = met->at(imet).phi();
-       Nmet++;
+       met_pt[met_size]    = met->at(imet).pt();
+       met_phi[met_size] = met->at(imet).phi();
+       met_size++;
       }
    
    
