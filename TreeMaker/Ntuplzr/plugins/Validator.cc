@@ -266,7 +266,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("jet_phi",jet_phi, "jet_phi[jet_size]/F");
     mytree->Branch("jet_mass",jet_mass, "jet_mass[jet_size]/F");
     mytree->Branch("jet_idpass", jet_idpass, "jet_idpass[jet_size]/i");
-    mytree->Branch("jet_bMVA",jet_bMVA, "jet_bMVA[jet_size]/F");
+    mytree->Branch("jet_bmva",jet_bMVA, "jet_bmva[jet_size]/F");
     mytree->Branch("jet_deepcsvtag1",jet_deepcsvtag1,"jet_deepcsvtag1[jet_size]/F");
     mytree->Branch("jet_deepcsvtag2",jet_deepcsvtag2,"jet_deepcsvtag2[jet_size]/F");
     
