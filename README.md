@@ -6,9 +6,9 @@
 cmsrel CMSSW_10_6_0
 cd CMSSW_10_6_0/src/
 cmsenv
-git clone https://github.com/jnsandhya/PhaseIIAnalysis.git
-scramv1 b -j 8
-cd PhaseIIAnalysis/TreeMaker/Ntuplzr
+git clone git@github.com:recotoolsbenchmarks/Ntuplizer.git
+scram b -j 8
+cd Ntuplizer
 ```
 ####################################################################################
 Basic Setup : Here in plugins/Ntuplzr.cc is the EDAnalyzer that makes the ntuples, takes in information 
