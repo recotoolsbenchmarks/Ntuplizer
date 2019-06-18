@@ -6,9 +6,9 @@
 cmsrel CMSSW_10_6_0
 cd CMSSW_10_6_0/src/
 cmsenv
-git clone git@github.com:recotoolsbenchmarks/Ntuplizer.git
+git clone git@github.com:recotoolsbenchmarks/Ntuplizer.git .
 scram b -j 8
-cd Ntuplizer
+cd TreeMaker/Ntuplzr/
 ```
 ####################################################################################
 Basic Setup : Here in plugins/Ntuplzr.cc is the EDAnalyzer that makes the ntuples, takes in information 
