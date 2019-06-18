@@ -6,7 +6,7 @@
 cmsrel CMSSW_10_6_0_patch2
 cd CMSSW_10_6_0_patch2/src/
 cmsenv
-git clone git@github.com:recotoolsbenchmarks/Ntuplizer.git .
+git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 scram b -j 8
 cd TreeMaker/Ntuplzr/
 ```
