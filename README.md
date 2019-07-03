@@ -5,6 +5,8 @@ The recipes for accessing PhaseII objects are summarized here:
 
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
+To run the Ntuplizer run the following on lxplus machines:
+
 ####################################################################################
 ```
 cmsrel CMSSW_10_6_0_patch2
