@@ -588,7 +588,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon_mass[muon_size]             = muons->at(im).mass();
       muon_charge[muon_size]           = muons->at(im).charge();
       muon_reliso[muon_size]           = muons->at(im).trackIso()/muons->at(im).pt();
-      muon_isopass[muon_size]          = muons->at(im).mass();
       muon_idvar[muon_size]            = 1.0;
       double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
       double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
