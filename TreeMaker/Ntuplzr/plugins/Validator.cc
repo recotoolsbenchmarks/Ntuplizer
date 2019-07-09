@@ -156,7 +156,7 @@ private:
   
   
   int tau_size, tau_charge[kMaxTau];
-  float tau_decaymode[kMaxTau], tau_reliso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau], tau_isofunction[kMaxTau];
+  float tau_decaymode[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau], tau_isofunction[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau];
   uint32_t tau_isopass[kMaxTau];
   
   int jet_size; 
@@ -255,7 +255,9 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("tau_mass",tau_mass, "tau_mass[tau_size]/F");
     mytree->Branch("tau_charge",tau_charge, "tau_charge[tau_size]/I");
     mytree->Branch("tau_decaymode",tau_decaymode, "tau_decaymode[tau_size]/F");
-    mytree->Branch("tau_reliso",tau_reliso, "tau_reliso[tau_size]/F");
+    mytree->Branch("tau_combinediso",tau_combinediso, "tau_combinediso[tau_size]/F");
+    mytree->Branch("tau_chargediso",tau_chargediso, "tau_chargediso[tau_size]/F");
+    mytree->Branch("tau_neutraliso",tau_neutraliso, "tau_neutraliso[tau_size]/F");
     mytree->Branch("tau_isofunction",tau_isofunction, "tau_isofunction[tau_size]/F");
     mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
     
@@ -663,21 +665,27 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tau_mass[tau_size]        = taus->at(it).mass();
      tau_charge[tau_size]      = taus->at(it).charge();
      tau_decaymode[tau_size]   = taus->at(it).decayMode();
-     float ChargedIsoTau       = taus->at(it).tauID("chargedIsoPtSumdR03");
-     float NeutralIsoTau       = taus->at(it).tauID("neutralIsoPtSumdR03");
-     tau_reliso[tau_size]      = ChargedIsoTau + 0.2*max(0.,NeutralIsoTau - 5.) / taus->at(it).pt();
+     tau_chargediso[tau_size]  = taus->at(it).tauID("chargedIsoPtSum");
+     tau_neutraliso[tau_size]  = taus->at(it).tauID("neutralIsoPtSumdR03");
+     
+     
+     if (std::abs(tau_eta[tau_size])<1.4)
+       tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 5.);
+     else 
+       tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 1.);
+       
      tau_isofunction[tau_size] = calculate_demetraIsolation(taus->at(it));
      
-     if(tau_reliso[tau_size] < 0.1)
+     if(tau_combinediso[tau_size] < 0.1)
        tau_isopass[tau_size] |= 1 << 0;
      
-     if(tau_reliso[tau_size] < 0.2)
+     if(tau_combinediso[tau_size] < 0.2)
        tau_isopass[tau_size] |= 1 << 1;
 
-     if(tau_reliso[tau_size] < 0.3)
+     if(tau_combinediso[tau_size] < 0.3)
 	 tau_isopass[tau_size] |= 1 << 2;
      
-     if(tau_reliso[tau_size] < 0.4)
+     if(tau_combinediso[tau_size] < 0.4)
        tau_isopass[tau_size] |= 1 << 3;
      
 
@@ -866,7 +874,8 @@ float Validator::calculate_demetraIsolation(const pat::Tau& tau)const{
       }
   }
   */
-  //return (isoDR03pt08dz015 + 0.2 * std::max(0., gamma_DR03sum - 5.))/tau.pt();
+  // if ( std::abs(cand->eta()) < 1.4) return (isoDR03pt08dz015 + 0.2 * std::max(0., gamma_DR03sum - 5.));
+  // else return (isoDR03pt08dz015 + 0.2 * std::max(0., gamma_DR03sum - 1.));
   return 1.;
     
   
