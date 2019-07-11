@@ -8,12 +8,11 @@ The recipes for accessing PhaseII objects are summarized here:
 Table of contents
 =================
 
-  * [Making a PR](#making a PR)
+  * [Making a PR](#makingPR)
   * [Code Setup](#setup)
 
 Making a PR
 =====
-
 
 ```
 cmsrel CMSSW_10_6_0_patch2
