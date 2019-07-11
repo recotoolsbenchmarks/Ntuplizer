@@ -7,6 +7,7 @@ The recipes for accessing PhaseII objects are summarized here:
 
 Table of contents
 =================
+
   * [Making a PR](#making a PR)
   * [Code Setup](#setup)
 
