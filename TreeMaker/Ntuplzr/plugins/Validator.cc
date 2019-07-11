@@ -162,9 +162,10 @@ private:
   int jet_size; 
   float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
   uint32_t jet_idpass[kMaxJet];
-  float jet_bMVA[kMaxJet];
-  float jet_DeepCSV[kMaxJet];
+  //float jet_bMVA[kMaxJet];
+  //float jet_DeepCSV[kMaxJet];
   float jet_DeepJET[kMaxJet];
+  uint32_t jet_btag[kMaxJet];
   
   int met_size;
   float met_pt[kMaxMissingET],met_phi[kMaxMissingET];
@@ -266,9 +267,10 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("jet_phi",jet_phi, "jet_phi[jet_size]/F");
     mytree->Branch("jet_mass",jet_mass, "jet_mass[jet_size]/F");
     mytree->Branch("jet_idpass", jet_idpass, "jet_idpass[jet_size]/i");
-    mytree->Branch("jet_bmva",jet_bMVA, "jet_bmva[jet_size]/F");
-    mytree->Branch("jet_DeepCSV",jet_DeepCSV,"jet_DeepCSV[jet_size]/F");
+    //mytree->Branch("jet_bmva",jet_bMVA, "jet_bmva[jet_size]/F");
+    //mytree->Branch("jet_DeepCSV",jet_DeepCSV,"jet_DeepCSV[jet_size]/F");
     mytree->Branch("jet_DeepJET",jet_DeepJET,"jet_DeepJET[jet_size]/F");
+    mytree->Branch("jet_btag",jet_btag,"jet_btag[jet_size]/i");
     
     
     mytree->Branch("met_size",&met_size, "met_size/I");
@@ -721,24 +723,30 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(isTight)
 	 jet_idpass[jet_size] |= 1 << 2;
        
-       jet_bMVA[jet_size]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");
-//$$       jet_deepcsvtag1[jet_size]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
-//$$       jet_deepcsvtag2[jet_size]  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
-//$$
-       float DeepCSVb   = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
-       float DeepCSVbb  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
-       jet_DeepCSV[jet_size]  = DeepCSVb + DeepCSVbb;
+       //jet_bMVA[jet_size]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");
+       //float DeepCSVb   = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
+       //float DeepCSVbb  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
+       //jet_DeepCSV[jet_size]  = DeepCSVb + DeepCSVbb;
 
        float DeepJETb    = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probb");
        float DeepJETbb   = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probbb");
        float DeepJETlepb = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
        jet_DeepJET[jet_size]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
-//$$
-          
+       
+       if(jet_DeepJET[jet_size] > 0.054 )
+	 jet_btag[jet_size] |= 1 << 0; 
+
+       if(jet_DeepJET[jet_size] > 0.283 )
+	 jet_btag[jet_size] |= 1 << 1; 
+
+       if(jet_DeepJET[jet_size] > 0.668 )
+	 jet_btag[jet_size] |= 1 << 2; 
+       
        if(debug_)
 	 {
-	   std::cout<<"Btaggers::::::::pfCombinedMVAV2BJetTags/pfDeepCSVJetTags:probb/pfDeepCSVJetTags:probbb:::::::::::::"<<std::endl;
-	   std::cout<<jet_bMVA[jet_size]<<" / "<< jet_DeepCSV[jet_size] <<" / "<< jet_DeepJET[jet_size] <<std::endl;
+	   //std::cout<<"Btaggers::::::::pfCombinedMVAV2BJetTags/pfDeepCSVJetTags:probb/pfDeepCSVJetTags:probbb:::::::::::::"<<std::endl;
+	   //std::cout<<jet_bMVA[jet_size]<<" / "<< jet_DeepCSV[jet_size] <<" / "<< jet_DeepJET[jet_size] <<std::endl;
+	   std::cout<<"jet_DeepJET: "<< jet_DeepJET[jet_size] <<std::endl;
 	 }
        jet_size++;
        if(jet_size>kMaxJet) break;
