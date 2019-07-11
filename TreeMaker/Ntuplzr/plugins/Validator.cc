@@ -157,7 +157,7 @@ private:
   
   int tau_size, tau_charge[kMaxTau];
   float tau_decaymode[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau], tau_isofunction[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau];
-  uint32_t tau_isopass[kMaxTau];
+  uint32_t tau_combinedisopass[kMaxTau];
   
   int jet_size; 
   float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
@@ -259,7 +259,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("tau_chargediso",tau_chargediso, "tau_chargediso[tau_size]/F");
     mytree->Branch("tau_neutraliso",tau_neutraliso, "tau_neutraliso[tau_size]/F");
     mytree->Branch("tau_isofunction",tau_isofunction, "tau_isofunction[tau_size]/F");
-    mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
+    mytree->Branch("tau_combinedisopass", tau_combinedisopass, "tau_combinedisopass[tau_size]/i");
     
     
     mytree->Branch("jet_size",&jet_size, "jet_size/I");
@@ -676,17 +676,17 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        
      tau_isofunction[tau_size] = calculate_demetraIsolation(taus->at(it));
      
-     if(tau_combinediso[tau_size] < 0.1)
-       tau_isopass[tau_size] |= 1 << 0;
+     if(tau_combinediso[tau_size] < 1.2)
+       tau_combinedisopass[tau_size] |= 1 << 0;
      
-     if(tau_combinediso[tau_size] < 0.2)
-       tau_isopass[tau_size] |= 1 << 1;
+     if(tau_combinediso[tau_size] < 2.)
+       tau_combinedisopass[tau_size] |= 1 << 1;
 
-     if(tau_combinediso[tau_size] < 0.3)
-	 tau_isopass[tau_size] |= 1 << 2;
+     if(tau_combinediso[tau_size] < 4.)
+	 tau_combinedisopass[tau_size] |= 1 << 2;
      
-     if(tau_combinediso[tau_size] < 0.4)
-       tau_isopass[tau_size] |= 1 << 3;
+     if(tau_combinediso[tau_size] < 5.)
+       tau_combinedisopass[tau_size] |= 1 << 3;
      
 
      tau_size++;
