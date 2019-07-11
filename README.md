@@ -5,7 +5,52 @@ The recipes for accessing PhaseII objects are summarized here:
 
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
-To run the Ntuplizer run the following on lxplus machines:
+Table of contents
+=================
+  * [Making a PR](#making a PR)
+  * [Code Setup](#setup)
+
+Making a PR
+=====
+
+
+```
+cmsrel CMSSW_10_6_0_patch2
+cd CMSSW_10_6_0_patch2/src/
+cmsenv
+git cms-init
+git cms-addpkg RecoBTag/TensorFlow
+git cms-addpkg RecoBTag/Combined
+wget https://raw.githubusercontent.com/cms-data/RecoBTag-Combined/master/DeepCSV_PhaseII.json -P RecoBTag/Combined/data/
+git cms-merge-topic rauser:DeepJetPhaseII_10_4_X
+mkdir new; cd new
+```
+If you do not attempt to contribute to this repository, simply clone it:
+```
+git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+```
+
+If you aim at contributing to the repository, you need to fork this repository (via the fork button) and then clone the forked repository:
+```
+git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
+cd ../; mv new/* .
+rm -rf new
+scram b -j 8
+cd TreeMaker/Ntuplzr/
+git remote add upstream git@github.com:recotoolsbenchmarks/RecoNtuplizer.git
+```
+
+You can then regularly update your fork via:
+```
+git fetch upstream && git merge upstream/master
+```
+
+If you want to submit a new feature to ```recotoolsbenchmarks/RecoNtuplizer``` you have to do it via pull-request (PR):
+So, first commit and push your changes to ```YOURGITUSERNAME/RecoNtuplizer``` and then make a PR via the github interface. 
+
+
+Code Setup
+=====
 
 ####################################################################################
 ```
