@@ -264,6 +264,7 @@ void SelectorClass::SlaveBegin(TTree * /*tree*/)
    ptGoodMatchedElec_EE->Sumw2();
    ptGoodMatchedElec_EE->GetXaxis()->SetTitle("P_{t}(GeV)");
 
+   /*
    sprintf(name,"ptAllGenMuon");
    ptAllGenMuon = new TH1F (name,"" ,  100, 0, 1000);
    ptAllGenMuon->Sumw2();
@@ -457,15 +458,15 @@ void SelectorClass::SlaveBegin(TTree * /*tree*/)
    ptGoodMatchedMuon_EE = new TH1F (name,"" ,  100, 0, 1000);
    ptGoodMatchedMuon_EE->Sumw2();
    ptGoodMatchedMuon_EE->GetXaxis()->SetTitle("P_{t}(GeV)");
-
+   */
 }
 
 Bool_t SelectorClass::Process(Long64_t entry)
 {
   fReader.SetEntry(entry);
   std::cout<<"Event:"<<entry<<std::endl;
-  nvtxAll -> Fill((float) *Nvtx , wgt);
-
+  //nvtxAll -> Fill((float) *Nvtx , wgt);
+  /*
   matchedpho_index.clear();
   matchedLoosepho_index.clear();
   matchedMediumpho_index.clear();
@@ -576,8 +577,8 @@ Bool_t SelectorClass::Process(Long64_t entry)
 	rel_isoTightMatchedPho_EE  -> Fill(IsolationVarpho[matchedTightpho_index[ij]] , wgt);
       }
   }
-
-
+  */
+  
   //// For Electrons
   matchedelec_index.clear();
   matchedLooseelec_index.clear();
@@ -586,17 +587,18 @@ Bool_t SelectorClass::Process(Long64_t entry)
   matchedGoodelec_index.clear();
 
   //nvtxAll -> Fill((float) *Nvtx , wgt);
-  for(Int_t ie= 0 ; ie < *Nelec; ie++) {
+  //for(Int_t ie= 0 ; ie < *Nelec; ie++) {
+  for(Int_t ie= 0 ; ie < 1; ie++) {
     if(Ptelec[ie] < 20. ) continue;
     if(fabs(Etaelec[ie]) > 3.0 ) continue;
     if(fabs(Etaelec[ie])> 1.444 && fabs(Etaelec[ie])< 1.566 ) continue;
-    if(fabs(Etaelec[ie]) < 1.444)
-      rel_isoAllElec_EB -> Fill(IsolationVarelec[ie], wgt);
-    if(fabs(Etaelec[ie]) > 1.566)
-      rel_isoAllElec_EE -> Fill(IsolationVarelec[ie], wgt);
+    //if(fabs(Etaelec[ie]) < 1.444)
+    //  rel_isoAllElec_EB -> Fill(IsolationVarelec[ie], wgt);
+    //if(fabs(Etaelec[ie]) > 1.566)
+    //  rel_isoAllElec_EE -> Fill(IsolationVarelec[ie], wgt);
   }
 
-
+  /*
   for(Int_t ig= 0 ; ig < *Ngenlepton; ig++) {
     if(abs(PIdgenlepton[ig])==11)
       {
@@ -860,6 +862,9 @@ Bool_t SelectorClass::Process(Long64_t entry)
 	ptGoodMatchedMuon_EE  -> Fill(Ptmuon [matchedGoodmuon_index[ij]] , wgt);
       }
   }
+
+  */
+
 
   /*  
   jet_index.clear();
