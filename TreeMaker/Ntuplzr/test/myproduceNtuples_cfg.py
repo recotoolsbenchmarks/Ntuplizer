@@ -16,7 +16,7 @@ options = VarParsing ('python')
 options.register('debug', False,
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.bool,
-                 "Fro Debug purposes"
+                 "For Debug purposes"
 )
 
 options.register('rerunBtag', True,
@@ -77,12 +77,11 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
-#$$
-options.inputFiles = '/store/relval/CMSSW_10_6_0/RelValTTbar_14TeV/MINIAODSIM/106X_upgrade2023_realistic_v2_2023D41noPU-v1/10000/63866134-439C-FF4F-B4DF-7398A8787500.root'
-#$$
-#options.inputFiles =  '/store/relval/CMSSW_10_6_0/RelValElectronGunPt2To100/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v2_2023D41PU200-v1/10000/296F40A8-0271-2F47-A3FD-F2251046CAF6.root'
-# '/store/relval/CMSSW_10_6_0_pre4/RelValTTbar_14TeV/MINIAODSIM/106X_upgrade2023_realistic_v2_2023D41noPU-v1/10000/EB281B96-007A-3344-A3E9-929D08BDC289.root'
-options.secondaryInputFiles = ''
+options.inputFiles = '/store/mc/PhaseIITDRSpring19MiniAOD/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/B155F8E9-1F3C-A741-8E86-5BEABD3AFC13.root'
+
+options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
+
+
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -95,6 +94,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *")
 
 # HGCAL EGamma ID
 process.load("RecoEgamma.Phase2InterimID.phase2EgammaPAT_cff")
+#process.load("RecoEgamma.Phase2InterimID.phase2EgammaRECO_cff")
 # analysis
 moduleName = options.Analyzr  
 process.myana = cms.EDAnalyzer(moduleName)
@@ -135,7 +135,8 @@ for key in options._register.keys():
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string(options.outputFile)
+                                   #fileName = cms.string(options.outputFile)
+                                   fileName = cms.string("file.root")
                                    )
 
 #$$
@@ -152,6 +153,7 @@ for mod in process.filters_().itervalues():
 #$$
 # process.p = cms.Path(process.phase2Egamma*process.myana)
 process.p = cms.Path(process.phase2Egamma*process.myana, process.tsk)
+#process.p = cms.Path(process.myana)
 #$$
 
 #open('ntupleFileDump.py','w').write(process.dumpPython())

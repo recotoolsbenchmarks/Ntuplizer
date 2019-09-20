@@ -116,10 +116,7 @@
    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
    virtual void endRun(edm::Run const&, edm::EventSetup const&) ;
    virtual void endJob() override;
-
-   //#bool isLooseElec    (const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot); 
-   //#bool isMediumElec   (const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot); 
-   //#bool isTightElec    (const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot); 
+   float calculate_demetraIsolation(const pat::Tau&) const;
    bool isME0MuonSel   (reco::Muon, double pullXCut, double dXCut, double pullYCut, double dYCut, double dPhi);
    bool isME0MuonSelNew(reco::Muon, double, double, double, edm::EventSetup const& );
    bool debug_;
@@ -209,16 +206,17 @@
    float NHEFjet[kMaxJet], NEEFjet[kMaxJet];
    float CHEFjet[kMaxJet], CEMEFjet[kMaxJet];
    float JECFjet[kMaxJet], bMVAjet[kMaxJet];
-   float DeepCSVjet[kMaxJet];
+   float Deepjet[kMaxJet];
+   //float Deepjet[kMaxJet];
 
    int Nmet;
    float Met[kMaxMissingET],Phimet[kMaxMissingET];
 
 
    int Ntau, Chargetau[kMaxTau];
-   float DMtau[kMaxTau], ChargedIsotau[kMaxTau] ;
+   float DMtau[kMaxTau], ChargedIsotau[kMaxTau], NeutralIsotau[kMaxTau], Isofunctiontau[kMaxTau], CombinedIsotau[kMaxTau] ;
    float Pttau[kMaxTau], Etatau[kMaxTau], Phitau[kMaxTau], Masstau[kMaxTau];
-
+   //bool isVLoosetau[kMaxTau], isLoosetau[kMaxTau],isMediumtau[kMaxTau], isTighttau[kMaxTau];
 
 
  };
@@ -258,14 +256,6 @@
 
 
    if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
-
-   //if ( iConfig.existsAs<edm::FileInPath>("photonEcorr") ) {
-   //  auto photonEcorrFile = iConfig.getParameter<edm::FileInPath>("photonEcorr");
-   //  TFile * photonEcorr = TFile::Open(photonEcorrFile.fullPath().c_str());
-   //  photonEcorr_ = (TH2F*) photonEcorr->Get("combinedECorrection");
-   //  photonEcorr_->SetDirectory(0);  // don't delete
-   //  delete photonEcorr;
-   //}
 
    ME0Geometry_=0;
    usesResource("TFileService");
@@ -405,8 +395,8 @@
    mytree->Branch("Phijet",Phijet, "Phijet[Njet]/F");
    mytree->Branch("Lj", Lj, "Lj[Njet]/I");
    mytree->Branch("Tj", Tj, "Tj[Njet]/I");
-   mytree->Branch("bMVAjet",bMVAjet, "bMVAjet[Njet]/F");
-   mytree->Branch("DeepCSVjet",DeepCSVjet,"DeepCSVjet[Njet]/F");
+   //mytree->Branch("bMVAjet",bMVAjet, "bMVAjet[Njet]/F");
+   mytree->Branch("Deepjet",Deepjet,"Deepjet[Njet]/F");
    mytree->Branch("Massjet",Massjet, "Massjet[Njet]/F");
    mytree->Branch("NoDjet", NoDjet, "NoDjet[Njet]/I" );
    mytree->Branch("NHEFjet", NHEFjet, "NHEFjet[Njet]/F" );
@@ -429,6 +419,8 @@
   mytree->Branch("Masstau",Masstau, "Masstau[Ntau]/F");
   mytree->Branch("DMtau",DMtau, "DMtau[Ntau]/F");
   mytree->Branch("ChargedIsotau",ChargedIsotau, "ChargedIsotau[Ntau]/F");
+  mytree->Branch("NeutralIsotau",NeutralIsotau, "NeutralIsotau[Ntau]/F");
+  mytree->Branch("CombinedIsotau",CombinedIsotau, "CombinedIsotau[Ntau]/F");
   //mytree->Branch("isLM", isLM , "isLM[Ntau]/I");
   //mytree->Branch("isTM", isTM, "isTM[Ntau]/I");
   //
@@ -610,11 +602,11 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      Massgenparticle[Ngenparticle]      = genParts->at(i).mass();
      if(genParts->at(i).mother())
        {
-	 std::cout<<"directly:"<<genParts->at(i).mother()->pdgId()<<std::endl;
+	 //std::cout<<"directly:"<<genParts->at(i).mother()->pdgId()<<std::endl;
      	 itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).mother());
 	 if(itCandidate != vectorCandidate.end())
 	   {
-	     std::cout<<"index:"<< distance(vectorCandidate.begin(), itCandidate)<<std::endl;
+	     //std::cout<<"index:"<< distance(vectorCandidate.begin(), itCandidate)<<std::endl;
 	     M1genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
 	     M2genparticle[Ngenparticle] = distance(vectorCandidate.begin(), itCandidate);
 	   }
@@ -742,17 +734,15 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      bool isEB = elecs->at(ie).isEB();
      
      
-     bool isLoose = 0;
+     bool isLoose  = 0;
      bool isMedium = 0;
-     bool isTight = 0;
+     bool isTight  = 0;
 
      if( isEB ) {
        if (elecs->at(ie).pt() < 20.) {
 	 isLoose = (mvaValue > -0.661);
 	 isMedium = (mvaValue > 0.885);
 	 isTight = (mvaValue > 0.986);
-	 
-
        }
        else {
 	 isLoose = (mvaValue > -0.797);
@@ -838,47 +828,47 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Muon information                                                                                                     
    for(size_t im= 0 ; im < muons->size(); im++)
      {
-    if (muons->at(im).pt() < 2.) continue;
-    if (fabs(muons->at(im).eta()) > 2.8) continue;
-
-	   Ptmuon[Nmuon] = muons->at(im).pt();
-	   Etamuon[Nmuon]= muons->at(im).eta();
-	   Phimuon[Nmuon]= muons->at(im).phi();
-	   Chargemuon[Nmuon]= muons->at(im).charge();
-	   Pxmuon[Nmuon] = muons->at(im).px();
-	   Pymuon[Nmuon] = muons->at(im).py();
-	   Pzmuon[Nmuon] = muons->at(im).pz();
-	   Emuon[Nmuon]= muons->at(im).energy();
-	   Massmuon[Nmuon]= muons->at(im).mass();
-	   // IsolationVarmuon[Nmuon] = (muons->at(im).puppiNoLeptonsChargedHadronIso() + muons->at(im).puppiNoLeptonsNeutralHadronIso() + muons->at(im).puppiNoLeptonsPhotonIso()) / muons->at(im).pt();
-	   IsolationVarmuon[Nmuon] = muons->at(im).trackIso()/muons->at(im).pt();
-
-	   CutBasedIdLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdLoose);
-	   CutBasedIdMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdMedium);
-	   CutBasedIdTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdTight);
-	   PFIsoLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoLoose);
-	   PFIsoMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoMedium);
-
-	   PFIsoTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoTight);
-
-	   double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
-	   double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
-	   isLM[Nmuon] = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
-	 	   
-	   bool ipxy = false, ipz = false, validPxlHit = false, highPurity = false;
-	   if (muons->at(im).innerTrack().isNonnull()){
-	     ipxy = std::abs(muons->at(im).muonBestTrack()->dxy(vertices->at(prVtx).position())) < 0.2;
-	     ipz = std::abs(muons->at(im).muonBestTrack()->dz(vertices->at(prVtx).position())) < 0.5;
-	     validPxlHit = muons->at(im).innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-	     highPurity = muons->at(im).innerTrack()->quality(reco::Track::highPurity);
-	   }      
-	   dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.032);
-	   dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0041);
-	   isTM[Nmuon] = (int) (fabs(muons->at(im).eta()) < 2.4 && vertices->size() > 0 && muon::isTightMuon(muons->at(im),vertices->at(prVtx))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.048, dPhiCut, dPhiBendCut, iSetup) && ipxy && ipz && validPxlHit && highPurity);
-	   //isTM[Nmuon] = (int) muon::isTightMuon(muons->at(im),vertices->at(prVtx));
-	   //std::cout<<"Muon Mass:"<<muons->at(im).mass()<<std::endl;
-	   Nmuon++;
-	   if(Nmuon>kMaxMuonLoose) break;
+       if (muons->at(im).pt() < 2.) continue;
+       if (fabs(muons->at(im).eta()) > 2.8) continue;
+       
+       Ptmuon[Nmuon] = muons->at(im).pt();
+       Etamuon[Nmuon]= muons->at(im).eta();
+       Phimuon[Nmuon]= muons->at(im).phi();
+       Chargemuon[Nmuon]= muons->at(im).charge();
+       Pxmuon[Nmuon] = muons->at(im).px();
+       Pymuon[Nmuon] = muons->at(im).py();
+       Pzmuon[Nmuon] = muons->at(im).pz();
+       Emuon[Nmuon]= muons->at(im).energy();
+       Massmuon[Nmuon]= muons->at(im).mass();
+       // IsolationVarmuon[Nmuon] = (muons->at(im).puppiNoLeptonsChargedHadronIso() + muons->at(im).puppiNoLeptonsNeutralHadronIso() + muons->at(im).puppiNoLeptonsPhotonIso()) / muons->at(im).pt();
+       IsolationVarmuon[Nmuon] = muons->at(im).trackIso()/muons->at(im).pt();
+       
+       CutBasedIdLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdLoose);
+       CutBasedIdMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdMedium);
+       CutBasedIdTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::CutBasedIdTight);
+       PFIsoLoosemuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoLoose);
+       PFIsoMediummuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoMedium);
+       
+       PFIsoTightmuon[Nmuon] = muons->at(im).passed(reco::Muon::PFIsoTight);
+       
+       double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
+       double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
+       isLM[Nmuon] = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
+       
+       bool ipxy = false, ipz = false, validPxlHit = false, highPurity = false;
+       if (muons->at(im).innerTrack().isNonnull()){
+	 ipxy = std::abs(muons->at(im).muonBestTrack()->dxy(vertices->at(prVtx).position())) < 0.2;
+	 ipz = std::abs(muons->at(im).muonBestTrack()->dz(vertices->at(prVtx).position())) < 0.5;
+	 validPxlHit = muons->at(im).innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+	 highPurity = muons->at(im).innerTrack()->quality(reco::Track::highPurity);
+       }      
+       dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.032);
+       dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0041);
+       isTM[Nmuon] = (int) (fabs(muons->at(im).eta()) < 2.4 && vertices->size() > 0 && muon::isTightMuon(muons->at(im),vertices->at(prVtx))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.048, dPhiCut, dPhiBendCut, iSetup) && ipxy && ipz && validPxlHit && highPurity);
+       //isTM[Nmuon] = (int) muon::isTightMuon(muons->at(im),vertices->at(prVtx));
+       //std::cout<<"Muon Mass:"<<muons->at(im).mass()<<std::endl;
+       Nmuon++;
+       if(Nmuon>kMaxMuonLoose) break;
      }
      
    if(debug_)   std::cout<<"Here I am : got muon infor right "<<std::endl;
@@ -892,6 +882,10 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (jets->at(ij).pt() < 20.) continue;
        if (fabs(jets->at(ij).eta()) > 5) continue;
        
+       std::cout<<"uncorrected jet pt:" << jets->at(ij).correctedP4(0).pt()<< " \t corrected jet pt:" << jets->at(ij).pt() << std::endl;
+       //std::cout<<"uncorrected jet eta:" << jets->at(ij).correctedP4(0).eta()<< " \t corrected jet eta:" << jets->at(ij).eta() << std::endl;
+       //std::cout<<"uncorrected jet phi:" << jets->at(ij).correctedP4(0).phi()<< " \t corrected jet phi:" << jets->at(ij).phi() << std::endl;
+
        Ptjet[Njet]  = jets->at(ij).pt();
        Etajet[Njet] = jets->at(ij).eta();
        Phijet[Njet] = jets->at(ij).phi();
@@ -920,9 +914,19 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        else Tj[Njet]= 0;
        //std::cout<<"jet Mass:"<<jets->at(ij).mass()<<std::endl;
 
-       bMVAjet[Njet]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");  ;
-       DeepCSVjet[Njet]      = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb") + jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
-          
+       //bMVAjet[Njet]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");  
+       float DeepJETb    = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probb");
+       float DeepJETbb   = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probbb");
+       float DeepJETlepb = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
+       Deepjet[Njet]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
+       /*
+       if(Deepjet[Njet] > 0.054)
+	 btag_loosejet[Njet] = 1; 
+       if(Deepjet[Njet] > 0.283)
+	 btag_mediumjet[Njet] = 1; 
+       if(Deepjet[Njet] > 0.668)
+	 btag_tightjet[Njet] = 1; 
+       */ 
        Njet++;
        if(Njet>kMaxJet) break;
      }
@@ -952,8 +956,30 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Masstau[Ntau]       = taus->at(it).mass();
       DMtau[Ntau]         = taus->at(it).decayMode();
       ChargedIsotau[Ntau] = taus->at(it).tauID("chargedIsoPtSum");
-      Ntau++;
-      if(Ntau>kMaxTau) break; 
+      NeutralIsotau[Ntau] = taus->at(it).tauID("neutralIsoPtSumdR03");
+      Isofunctiontau[Ntau] = calculate_demetraIsolation(taus->at(it));
+     
+      if (std::abs(taus->at(it).eta())<1.4)
+	CombinedIsotau[Ntau] = ChargedIsotau[Ntau] + 0.2*max(0.,NeutralIsotau[Ntau] - 5.);
+     else 
+       CombinedIsotau[Ntau] = ChargedIsotau[Ntau] + 0.2*max(0.,NeutralIsotau[Ntau] - 1.);
+     
+      /*
+      isVLooseTau[Ntau]= isLooseTau[Ntau]= isMediumTau[Ntau]= isTightTau[Ntau]=0;
+     if(CombinedIso[Ntau] < 1.2)
+       isVLoosetau[Ntau] = 1;
+
+     if(CombinedIso[Ntau] < 2.)
+       isLoosetau[Ntau] = 1;
+
+     if(CombinedIso[Ntau] < 4.)
+       isMediumtau[Ntau] = 1;
+
+     if(CombinedIso[Ntau] < 5.)
+       isTighttau[Ntau] = 1;
+      */
+     Ntau++;
+     if(Ntau>kMaxTau) break; 
     }
     if(debug_)   std::cout<<"Here I am : got tau infor right "<<std::endl;
     if(debug_) std::cout<<"beforeend"<<std::endl;
@@ -962,67 +988,51 @@ Ntuplzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(debug_) std::cout<<"end"<<std::endl;
 }
 
-
-
-
-
-// ------------ method check that an e passes loose ID ----------------------------------
-/*  bool
-  Ntuplzr::isLooseElec(const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot) 
-{
-  if (fabs(patEl.superCluster()->eta()) > 1.479 && fabs(patEl.superCluster()->eta()) < 1.556) return false;
-  if (patEl.full5x5_sigmaIetaIeta() > 0.02992) return false;
-  if (fabs(patEl.deltaEtaSuperClusterTrackAtVtx()) > 0.004119) return false;
-  if (fabs(patEl.deltaPhiSuperClusterTrackAtVtx()) > 0.05176) return false;
-  if (patEl.hcalOverEcal() > 6.741) return false;
-  if (patEl.pfIsolationVariables().sumChargedHadronPt / patEl.pt() > 2.5) return false;
-  double Ooemoop = 999.;
-  if (patEl.ecalEnergy() == 0) Ooemoop = 0.;
-  else if (!std::isfinite(patEl.ecalEnergy())) Ooemoop = 998.;
-  else Ooemoop = fabs(1./patEl.ecalEnergy() - patEl.eSuperClusterOverP()/patEl.ecalEnergy());
-  if (Ooemoop > 73.76) return false;
-  //if (ConversionTools::hasMatchedConversion(patEl, convCol, beamspot.position())) return false;
-  return true;
+////Jan's code//
+float Ntuplzr::calculate_demetraIsolation(const pat::Tau& tau)const{
+  /*  unsigned int tau_vertex_idxpf=-1;
+  pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(tau.leadChargedHadrCand().get());
+  tau_vertex_idxpf = packedLeadTauCand->vertexRef().key();
+  
+  float isoDR03pt08dz015=0;
+  float gamma_DR03sum=0;
+  
+  
+  for(const auto& IsoCand: tau.isolationChargedHadrCands()){
+    pat::PackedCandidate const* cand = dynamic_cast<pat::PackedCandidate const*>(IsoCand.get());
+    if (! cand->charge() )continue;
+    //WATCH OUT WHICH VERTICES THESE ARE
+    /*if(!vertices())continue;
+    const auto& tau_vertex = (*vertices())[tau_vertex_idxpf];
+    
+    if ((cand->pt()<=0.8) || (fabs(cand->dxy(tau_vertex.position()))>=0.05))continue;
+    if (cand->hasTrackDetails()){
+      const auto &tt = cand->pseudoTrack();
+      if (tt.normalizedChi2()>=100. || cand->numberOfHits()<3)continue;
+    }
+    
+    if (reco::deltaR2(tau,*cand)<0.3*0.3
+	&& fabs(cand->dz(tau_vertex.position()))<0.15){
+	   
+	   isoDR03pt08dz015+=cand->pt();
+    }
+  }
+  for(const auto&  IsoCand: tau.isolationGammaCands()){
+    pat::PackedCandidate const* cand = dynamic_cast<pat::PackedCandidate const*>(IsoCand.get());
+    if ( cand->pt() < 0.5 ) continue;
+    if (reco::deltaR2(tau,*cand)<0.3*0.3 && cand->pt()>1.){
+      gamma_DR03sum+=cand->pt();
+      }
+  }
+  */
+  // if ( std::abs(cand->eta()) < 1.4) return (isoDR03pt08dz015 + 0.2 * std::max(0., gamma_DR03sum - 5.));
+  // else return (isoDR03pt08dz015 + 0.2 * std::max(0., gamma_DR03sum - 1.));
+  return 1.;
+    
+  
 }
 
-// ------------ method check that an e passes medium ID ----------------------------------
-  bool
-  Ntuplzr::isMediumElec(const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot) 
-{
-  if (fabs(patEl.superCluster()->eta()) > 1.479 && fabs(patEl.superCluster()->eta()) < 1.556) return false;
-  if (patEl.full5x5_sigmaIetaIeta() > 0.01609) return false;
-  if (fabs(patEl.deltaEtaSuperClusterTrackAtVtx()) > 0.001766) return false;
-  if (fabs(patEl.deltaPhiSuperClusterTrackAtVtx()) > 0.03130) return false;
-  if (patEl.hcalOverEcal() > 7.371) return false;
-  if (patEl.pfIsolationVariables().sumChargedHadronPt / patEl.pt() > 1.325) return false;
-  double Ooemoop = 999.;
-  if (patEl.ecalEnergy() == 0) Ooemoop = 0.;
-  else if (!std::isfinite(patEl.ecalEnergy())) Ooemoop = 998.;
-  else Ooemoop = fabs(1./patEl.ecalEnergy() - patEl.eSuperClusterOverP()/patEl.ecalEnergy());
-  if (Ooemoop > 22.6) return false;
-  //if (ConversionTools::hasMatchedConversion(patEl, convCol, beamspot.position())) return false;
-  return true;
-}
 
-// ------------ method check that an e passes tight ID ----------------------------------
-  bool
-  Ntuplzr::isTightElec(const pat::Electron & patEl, const reco::ConversionCollection &convCol, const reco::BeamSpot beamspot) 
-{
-  if (fabs(patEl.superCluster()->eta()) > 1.479 && fabs(patEl.superCluster()->eta()) < 1.556) return false;
-  if (patEl.full5x5_sigmaIetaIeta() > 0.01614) return false;
-  if (fabs(patEl.deltaEtaSuperClusterTrackAtVtx()) > 0.001322) return false;
-  if (fabs(patEl.deltaPhiSuperClusterTrackAtVtx()) > 0.06129) return false;
-  if (patEl.hcalOverEcal() > 4.492) return false;
-  if (patEl.pfIsolationVariables().sumChargedHadronPt / patEl.pt() > 1.255) return false;
-  double Ooemoop = 999.;
-  if (patEl.ecalEnergy() == 0) Ooemoop = 0.;
-  else if (!std::isfinite(patEl.ecalEnergy())) Ooemoop = 998.;
-  else Ooemoop = fabs(1./patEl.ecalEnergy() - patEl.eSuperClusterOverP()/patEl.ecalEnergy());
-  if (Ooemoop > 18.26) return false;
-  //if (ConversionTools::hasMatchedConversion(patEl, convCol, beamspot.position())) return false;
-  return true;
-}
-*/
 
 
 

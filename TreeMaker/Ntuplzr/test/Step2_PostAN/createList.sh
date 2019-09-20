@@ -10,13 +10,16 @@ ext=$2
 name=$3
 iter=$4
 
-dir=`ls /eos/cms/store/group/upgrade/RTB/${sample}/crab_${sample}/| awk '{print $1}'`
+#dir=`ls /eos/cms/store/group/upgrade/RTB/${sample}/crab_${sample}/| awk '{print $1}'`
+dir=`ls /eos/cms/store/group/upgrade/sandhya/VBS/Iter1/${sample}/crab_${sample}/| awk '{print $1}'`
 
 echo $sample
 echo $dir
 echo $ext
 echo $name
-ls /eos/cms/store/group/upgrade/RTB/${sample}/crab_${sample}/${dir}/0000/ | grep -v log | grep -v failed | awk -v dir=$dir -v sample=$sample -v ext=$ext -v name=$name -v iter=$iter '{print "/eos/cms/store/group/upgrade/RTB/" sample "/crab_" sample "/" dir"/0000/"$1}' >> input_${sample}.list 
+#ls /eos/cms/store/group/upgrade/RTB/${sample}/crab_${sample}/${dir}/0000/ | grep -v log | grep -v failed | awk -v dir=$dir -v sample=$sample -v ext=$ext -v name=$name -v iter=$iter '{print "/eos/cms/store/group/upgrade/RTB/" sample "/crab_" sample "/" dir"/0000/"$1}' >> input_${sample}.list 
+
+ls /eos/cms/store/group/upgrade/sandhya/VBS/Iter1/${sample}/crab_${sample}/${dir}/0000/ | grep -v log | grep -v failed | awk -v dir=$dir -v sample=$sample -v ext=$ext -v name=$name -v iter=$iter '{print "/eos/cms/store/group/upgrade/sandhya/VBS/Iter1/" sample "/crab_" sample "/" dir"/0000/"$1}' >> input_${sample}.list 
 
 
 

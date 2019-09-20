@@ -121,6 +121,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenJet>>      genJetsToken_      ;
   edm::EDGetTokenT<std::vector<pat::Photon>>       photnsToken_       ; 
   edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
+  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Muon>>         muonsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Tau>>          tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
@@ -156,8 +157,8 @@ private:
   
   
   int tau_size, tau_charge[kMaxTau];
-  float tau_decaymode[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau], tau_isofunction[kMaxTau]; 
-  uint32_t tau_combinedisopass[kMaxTau];
+  float tau_decaymode[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau]; 
+  uint32_t tau_isopass[kMaxTau];
   
   int jet_size; 
   float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
@@ -180,6 +181,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
   photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
   elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+  //elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
   muonsToken_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -259,8 +261,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("tau_chargediso",tau_chargediso, "tau_chargediso[tau_size]/F");
     mytree->Branch("tau_neutraliso",tau_neutraliso, "tau_neutraliso[tau_size]/F");
     mytree->Branch("tau_combinediso",tau_combinediso, "tau_combinediso[tau_size]/F");
-    mytree->Branch("tau_isofunction",tau_isofunction, "tau_isofunction[tau_size]/F");
-    mytree->Branch("tau_combinedisopass", tau_combinedisopass, "tau_combinedisopass[tau_size]/i");
+    mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
     
     
     mytree->Branch("jet_size",&jet_size, "jet_size/I");
@@ -269,8 +270,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("jet_phi",jet_phi, "jet_phi[jet_size]/F");
     mytree->Branch("jet_mass",jet_mass, "jet_mass[jet_size]/F");
     mytree->Branch("jet_idpass", jet_idpass, "jet_idpass[jet_size]/i");
-    //mytree->Branch("jet_bmva",jet_bMVA, "jet_bmva[jet_size]/F");
-    //mytree->Branch("jet_DeepCSV",jet_DeepCSV,"jet_DeepCSV[jet_size]/F");
     mytree->Branch("jet_DeepJET",jet_DeepJET,"jet_DeepJET[jet_size]/F");
     mytree->Branch("jet_btag",jet_btag,"jet_btag[jet_size]/i");
     
@@ -309,9 +308,13 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<std::vector<pat::Photon>> photns;
   iEvent.getByToken(photnsToken_, photns);
-
+  
   Handle<std::vector<pat::Electron>> elecs;
   iEvent.getByToken(elecsToken_, elecs);
+
+  //Handle<std::vector<reco::GsfElectron>> elecs;
+  //iEvent.getByToken(elecsToken_, elecs);
+
 
   Handle<std::vector<pat::Muon>> muons;
   iEvent.getByToken(muonsToken_, muons);
@@ -359,7 +362,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   
   
-  
+    
   /////////////////////////////
   //////Gen Particle info//////
   /////////////////////////////
@@ -467,7 +470,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gamma_phi[gamma_size]       = photns->at(ip).phi();
       gamma_mass[gamma_size]      = photns->at(ip).mass();
       gamma_idvar[gamma_size]     = mvaValue; // MVA
-      gamma_reliso[gamma_size] = 1.;
+      gamma_reliso[gamma_size]    = 0.;
       
       
       if(isLoose)
@@ -502,14 +505,15 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
     if(elecs->at(ie).pt() < 10.) continue;
     if (fabs(elecs->at(ie).eta()) > 3.) continue;
-    float mvaValue = elecs->at(ie).userFloat("mvaValue");
+    //float mvaValue = elecs->at(ie).userFloat("mvaValue");
+    float mvaValue = 1.;
     elec_pt[elec_size]               = elecs->at(ie).pt();
     elec_eta[elec_size]              = elecs->at(ie).eta();
     elec_phi[elec_size]              = elecs->at(ie).phi();
     elec_mass[elec_size]             = elecs->at(ie).mass();
     elec_charge[elec_size]           = elecs->at(ie).charge();
     elec_idvar[elec_size]            = mvaValue; //MVA
-    bool isEB = elecs->at(ie).isEB();
+    bool isEB                        = elecs->at(ie).isEB();
     if(isEB) 
       elec_reliso[elec_size] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
     else 
@@ -577,6 +581,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //std::cout<<elec_size<<std::endl;
   if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
+
   
   /////////////////////////////
   // Muon information
@@ -669,7 +674,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tau_decaymode[tau_size]   = taus->at(it).decayMode();
      tau_chargediso[tau_size]  = taus->at(it).tauID("chargedIsoPtSum");
      tau_neutraliso[tau_size]  = taus->at(it).tauID("neutralIsoPtSumdR03");
-     tau_isofunction[tau_size] = calculate_demetraIsolation(taus->at(it));
+
      
      if (std::abs(tau_eta[tau_size])<1.4)
        tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 5.);
@@ -678,16 +683,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      
      if(tau_combinediso[tau_size] < 1.2)
-       tau_combinedisopass[tau_size] |= 1 << 0;
+       tau_isopass[tau_size] |= 1 << 0;
      
      if(tau_combinediso[tau_size] < 2.)
-       tau_combinedisopass[tau_size] |= 1 << 1;
+       tau_isopass[tau_size] |= 1 << 1;
 
      if(tau_combinediso[tau_size] < 4.)
-	 tau_combinedisopass[tau_size] |= 1 << 2;
+	 tau_isopass[tau_size] |= 1 << 2;
      
      if(tau_combinediso[tau_size] < 5.)
-       tau_combinedisopass[tau_size] |= 1 << 3;
+       tau_isopass[tau_size] |= 1 << 3;
      
 
      tau_size++;
@@ -774,7 +779,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    if(debug_)   std::cout<<"Here I am : got met infor right "<<std::endl;
    if(debug_) std::cout<<"beforeend"<<std::endl;
- 
+  
    mytree->Fill();
    if(debug_) std::cout<<"end"<<std::endl;
 }

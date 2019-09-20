@@ -12,7 +12,11 @@ public:
   float pt;
   float eta;
   float phi;
+  float mass;
+  float zlep;
   int   charge;
+  bool chargeconsistent;
+  int missinghits;
   float iso;
   int flavour;
 };
