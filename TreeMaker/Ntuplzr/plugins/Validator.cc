@@ -120,8 +120,8 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenParticle>> genPartsToken_     ;
   edm::EDGetTokenT<std::vector<reco::GenJet>>      genJetsToken_      ;
   edm::EDGetTokenT<std::vector<pat::Photon>>       photnsToken_       ; 
-  //edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
-  edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_        ;
+  edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
+  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Muon>>         muonsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Tau>>          tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
@@ -180,8 +180,8 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
   photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
-  //elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-  elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+  elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+  //elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
   muonsToken_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
