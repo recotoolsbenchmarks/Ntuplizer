@@ -526,8 +526,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
     if(elecs->at(ie).pt() < 10.) continue;
     if (fabs(elecs->at(ie).eta()) > 3.) continue;
-    //float mvaValue = elecs->at(ie).userFloat("mvaValue");
-    float mvaValue = 1.;
+    float mvaValue = elecs->at(ie).userFloat("mvaValue");
+    //float mvaValue = 1.;
     elec_pt[elec_size]               = elecs->at(ie).pt();
     elec_eta[elec_size]              = elecs->at(ie).eta();
     elec_phi[elec_size]              = elecs->at(ie).phi();
