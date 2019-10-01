@@ -119,6 +119,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>>      verticesToken_     ;
   edm::EDGetTokenT<std::vector<reco::GenParticle>> genPartsToken_     ;
   edm::EDGetTokenT<std::vector<reco::GenJet>>      genJetsToken_      ;
+  edm::EDGetTokenT<std::vector<reco::GenMET>>      genMetToken_      ;
   edm::EDGetTokenT<std::vector<pat::Photon>>       photnsToken_       ; 
   edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
   //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_        ;
@@ -143,6 +144,9 @@ private:
   int genjet_size;
   float genjet_pt[kMaxGenJet], genjet_eta[kMaxGenJet], genjet_phi[kMaxGenJet], genjet_mass[kMaxGenJet];
   
+  int genmet_size;
+  float genmet_pt[kMaxMissingET],genmet_phi[kMaxMissingET];
+  
   int gamma_size;
   float MVAgamma_[kMaxPhoton],gamma_pt[kMaxPhoton], gamma_eta[kMaxPhoton], gamma_phi[kMaxPhoton],gamma_mass[kMaxPhoton],gamma_reliso[kMaxPhoton], gamma_idvar[kMaxPhoton];
   uint32_t gamma_isopass[kMaxPhoton], gamma_idpass[kMaxPhoton];
@@ -154,8 +158,7 @@ private:
   int muon_size, muon_charge[kMaxMuonLoose];
   float muon_pt[kMaxMuonLoose], muon_eta[kMaxMuonLoose], muon_phi[kMaxMuonLoose], muon_reliso[kMaxMuonLoose], muon_mass[kMaxMuonLoose], muon_idvar[kMaxMuonLoose];
   uint32_t muon_isopass[kMaxMuonLoose], muon_idpass[kMaxMuonLoose] ;
-  
-  
+
   int tau_size, tau_charge[kMaxTau];
   float tau_decaymode[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau]; 
   uint32_t tau_isopass[kMaxTau];
@@ -163,8 +166,6 @@ private:
   int jet_size; 
   float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
   uint32_t jet_idpass[kMaxJet];
-  //float jet_bMVA[kMaxJet];
-  //float jet_DeepCSV[kMaxJet];
   float jet_DeepJET[kMaxJet];
   uint32_t jet_btag[kMaxJet];
   
@@ -179,6 +180,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   verticesToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
+  genMetToken_(consumes<std::vector<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMet"))),
   photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
   elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
   //elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -193,7 +195,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     
     ME0Geometry_ = 0;
     evt_size     = 0;
-    
     usesResource("TFileService");
     mytree   = fs_->make<TTree>("mytree","TestTree");
     mytree->Branch("evt_size",&evt_size, "evt_size/I");
@@ -217,6 +218,10 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("genjet_eta",genjet_eta, "genjet_eta[genjet_size]/F");
     mytree->Branch("genjet_phi",genjet_phi, "genjet_phi[genjet_size]/F");
     mytree->Branch("genjet_mass",genjet_mass, "genjet_mass[genjet_size]/F");
+
+    mytree->Branch("genmet_size",&genmet_size, "genmet_size/I");
+    mytree->Branch("genmet_pt", genmet_pt, "genmet_pt[genmet_size]/F");
+    mytree->Branch("genmet_phi",genmet_phi, "genmet_phi[genmet_size]/F");
     
     mytree->Branch("gamma_size",&gamma_size, "gamma_size/I");
     mytree->Branch("gamma_pt",gamma_pt, "gamma_pt[gamma_size]/F");
@@ -305,6 +310,10 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<std::vector<reco::GenJet>> genJets;
   iEvent.getByToken(genJetsToken_, genJets);
+
+  Handle<std::vector<reco::GenMET>> genMet;
+  iEvent.getByToken(genMetToken_, genMet);
+
 
   Handle<std::vector<pat::Photon>> photns;
   iEvent.getByToken(photnsToken_, photns);
@@ -440,6 +449,17 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(genjet_size>kMaxGenJet) break;       
     }
   if(debug_)   std::cout<<"Here I am : got genjet infor right "<<std::endl;
+
+  /////////////////////////////
+  //GenMET information
+  /////////////////////////////
+
+   for(size_t imet= 0 ; imet < genMet->size(); imet++)
+     {
+       genmet_pt[met_size]  = genMet->at(imet).pt();
+       genmet_phi[met_size] = genMet->at(imet).phi();
+       genmet_size++;
+      }
   
   /////////////////////////////
   //Photon information         
@@ -471,7 +491,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gamma_mass[gamma_size]      = photns->at(ip).mass();
       gamma_idvar[gamma_size]     = mvaValue; // MVA
       gamma_reliso[gamma_size]    = 0.;
-      
+      gamma_idpass[gamma_size]    = 0;
+      gamma_isopass[gamma_size]   = 0;
       
       if(isLoose)
 	gamma_idpass[gamma_size] |= 1 << 0;
@@ -513,6 +534,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     elec_mass[elec_size]             = elecs->at(ie).mass();
     elec_charge[elec_size]           = elecs->at(ie).charge();
     elec_idvar[elec_size]            = mvaValue; //MVA
+    elec_idpass[elec_size]           = 0;
+    elec_isopass[elec_size]          = 0;
     bool isEB                        = elecs->at(ie).isEB();
     if(isEB) 
       elec_reliso[elec_size] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
@@ -582,7 +605,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout<<elec_size<<std::endl;
   if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
 
-  
+
   /////////////////////////////
   // Muon information
   /////////////////////////////
@@ -598,18 +621,22 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon_charge[muon_size]           = muons->at(im).charge();
       muon_reliso[muon_size]           = muons->at(im).trackIso()/muons->at(im).pt();
       muon_idvar[muon_size]            = 1.0;
+      muon_idpass[muon_size]           = 0;
+      muon_isopass[muon_size]          = 0;
       double dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.056);
       double dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0096);
       
       int isLoose = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
+
+
       if(isLoose)
 	muon_idpass[muon_size] |= 1 << 0;
-      
-      //// isLoose = isMedium
+	
       int isMedium = isLoose;
+
       if(isMedium)
 	muon_idpass[muon_size] |= 1 << 1;
-      
+	      
       
       bool ipxy = false, ipz = false, validPxlHit = false, highPurity = false;
       if (muons->at(im).innerTrack().isNonnull()){
@@ -621,8 +648,10 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       dPhiCut = std::min(std::max(1.2/muons->at(im).p(),1.2/100),0.032);
       dPhiBendCut = std::min(std::max(0.2/muons->at(im).p(),0.2/100),0.0041);
       int isTight = (int) (fabs(muons->at(im).eta()) < 2.4 && vertices->size() > 0 && muon::isTightMuon(muons->at(im),vertices->at(prVtx))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.048, dPhiCut, dPhiBendCut, iSetup) && ipxy && ipz && validPxlHit && highPurity);
+
       if(isTight)
 	muon_idpass[muon_size] |= 1 << 2;
+
       
       
       
@@ -674,7 +703,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tau_decaymode[tau_size]   = taus->at(it).decayMode();
      tau_chargediso[tau_size]  = taus->at(it).tauID("chargedIsoPtSum");
      tau_neutraliso[tau_size]  = taus->at(it).tauID("neutralIsoPtSumdR03");
-
+     tau_isopass[tau_size]     = 0;
      
      if (std::abs(tau_eta[tau_size])<1.4)
        tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 5.);
@@ -710,10 +739,12 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        //if (jets->at(ij).pt() < 20.) continue;
        //if (fabs(jets->at(ij).eta()) > 5) continue;
        //
-       jet_pt[jet_size]  = jets->at(ij).pt();
-       jet_eta[jet_size] = jets->at(ij).eta();
-       jet_phi[jet_size] = jets->at(ij).phi();
-       jet_mass[jet_size]= jets->at(ij).mass();
+       jet_pt[jet_size]     = jets->at(ij).pt();
+       jet_eta[jet_size]    = jets->at(ij).eta();
+       jet_phi[jet_size]    = jets->at(ij).phi();
+       jet_mass[jet_size]   = jets->at(ij).mass();
+       jet_idpass[jet_size] = 0;
+       jet_btag[jet_size]   = 0;
 
        bool isLoose(0), isMedium(0), isTight(0);
        if( (jets->at(ij).numberOfDaughters() > 1 ) && ( jets->at(ij).neutralEmEnergyFraction()< 0.99 ) && ( jets->at(ij).neutralHadronEnergyFraction() < 0.99 ))
@@ -735,11 +766,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(isTight)
 	 jet_idpass[jet_size] |= 1 << 2;
        
-       //jet_bMVA[jet_size]         = (float) jets->at(ij).bDiscriminator("pfCombinedMVAV2BJetTags");
-       //float DeepCSVb   = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probb");
-       //float DeepCSVbb  = (float) jets->at(ij).bDiscriminator("pfDeepCSVJetTags:probbb");
-       //jet_DeepCSV[jet_size]  = DeepCSVb + DeepCSVbb;
-
        float DeepJETb    = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probb");
        float DeepJETbb   = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probbb");
        float DeepJETlepb = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
@@ -755,11 +781,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 jet_btag[jet_size] |= 1 << 2; 
        
        if(debug_)
-	 {
-	   //std::cout<<"Btaggers::::::::pfCombinedMVAV2BJetTags/pfDeepCSVJetTags:probb/pfDeepCSVJetTags:probbb:::::::::::::"<<std::endl;
-	   //std::cout<<jet_bMVA[jet_size]<<" / "<< jet_DeepCSV[jet_size] <<" / "<< jet_DeepJET[jet_size] <<std::endl;
 	   std::cout<<"jet_DeepJET: "<< jet_DeepJET[jet_size] <<std::endl;
-	 }
+
        jet_size++;
        if(jet_size>kMaxJet) break;
      }
@@ -936,6 +959,7 @@ Validator::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 void 
 Validator::endJob() 
 {
+
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
