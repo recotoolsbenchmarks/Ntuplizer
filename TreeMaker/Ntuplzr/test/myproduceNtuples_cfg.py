@@ -82,7 +82,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 #                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/91644A10-3DBF-9249-8D98-70061BC075E9.root',
 #                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/A885BB63-20F8-5E41-A0E5-3BE38BA5B0BF.root']
 
-options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_QCD_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/250000/1BDEBB5D-01C8-6645-8F72-082549F9DD9B.root']
+#options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_QCD_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/250000/1BDEBB5D-01C8-6645-8F72-082549F9DD9B.root']
+#options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/PhotonFlatPt8To150/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v1/230000/E8D9CEB8-64AC-C641-9E59-C488B6BE706F.root']
+options.inputFiles = ['/store/relval/CMSSW_10_6_0_patch2/RelValTTbar_14TeV/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v3_2023D41PU200-v1/10000/FFF6B0DE-6A3A-D04C-9A77-C195F92F8577.root']
 #options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
 
 
