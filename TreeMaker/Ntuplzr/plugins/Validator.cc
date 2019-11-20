@@ -336,11 +336,13 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<std::vector<pat::MET>> met;
   iEvent.getByToken(metToken_, met);
-  
+
+    
   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
   vtx_size      = 0;
-  genjet_size   = 0;
   genpart_size  = 0;
+  genjet_size   = 0;
+  genmet_size   = 0;
   elec_size     = 0;
   jet_size      = 0;
   muon_size     = 0;
@@ -348,11 +350,13 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   gamma_size    = 0;
   tau_size      = 0;
 
-  if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl;  
-
+  if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl; 
+  
   evt_size++;
 
+  if(debug_) std::cout<<"Event:"<<evt_size<<std::endl;
 
+  
   /////////////////////////////
   //////vertices info//////
   /////////////////////////////
@@ -408,12 +412,18 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	genpart_m2[genpart_size] =-99;
       }
     
-    
-    itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(0));
-    if(itCandidate != vectorCandidate.end()) genpart_d1[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
-    
-    itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(genParts->at(i).numberOfDaughters() - 1));
-    if(itCandidate != vectorCandidate.end()) genpart_d2[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+    if(genParts->at(i).numberOfDaughters())
+      {
+	itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(0));
+	if(itCandidate != vectorCandidate.end()) genpart_d1[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+	itCandidate = find(vectorCandidate.begin(), vectorCandidate.end(), genParts->at(i).daughter(genParts->at(i).numberOfDaughters() - 1));
+	if(itCandidate != vectorCandidate.end()) genpart_d2[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
+      }
+    else {
+	genpart_d1[genpart_size] =-99;
+	genpart_d2[genpart_size] =-99;
+    }
+
     genpart_size++;
     if(genpart_size>kMaxParticle) break;       
   }
@@ -456,8 +466,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    for(size_t imet= 0 ; imet < genMet->size(); imet++)
      {
-       genmet_pt[met_size]  = genMet->at(imet).pt();
-       genmet_phi[met_size] = genMet->at(imet).phi();
+       genmet_pt[genmet_size]  = genMet->at(imet).pt();
+       genmet_phi[genmet_size] = genMet->at(imet).phi();
        genmet_size++;
       }
   
@@ -526,8 +536,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
     if(elecs->at(ie).pt() < 10.) continue;
     if (fabs(elecs->at(ie).eta()) > 3.) continue;
-    //float mvaValue = elecs->at(ie).userFloat("mvaValue");
-    float mvaValue = 1.;
+    float mvaValue = elecs->at(ie).userFloat("mvaValue");
+    //float mvaValue = 1.;
     elec_pt[elec_size]               = elecs->at(ie).pt();
     elec_eta[elec_size]              = elecs->at(ie).eta();
     elec_phi[elec_size]              = elecs->at(ie).phi();
@@ -546,16 +556,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if( isEB ) {
       if (elecs->at(ie).pt() < 20.) {
-	isLoose = (mvaValue  > -0.661);
+	isLoose  = (mvaValue  > -0.661);
 	isMedium = (mvaValue > 0.885);
-	isTight = (mvaValue  > 0.986);
+	isTight  = (mvaValue  > 0.986);
      	
 	
       }
       else {
-	isLoose = (mvaValue  > -0.797);
+	isLoose  = (mvaValue  > -0.797);
 	isMedium = (mvaValue > 0.723);
-	isTight = (mvaValue  > 0.988);
+	isTight  = (mvaValue  > 0.988);
       }
     }
     else {
@@ -570,15 +580,17 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	isTight = (mvaValue  > 0.969);
       }
       else {
-	isLoose = (mvaValue  > -0.919);
+	isLoose  = (mvaValue  > -0.919);
 	isMedium = (mvaValue > 0.591);
-	isTight = (mvaValue  > 0.983);
+	isTight  = (mvaValue  > 0.983);
       }
     }
     
     if(isLoose)
-      elec_idpass[elec_size] |= 1 << 0;
-    
+      //{
+	elec_idpass[elec_size] |= 1 << 0;
+	//std::cout<<"loose muon found"<<std::endl;
+    // }
     if(isMedium)
       elec_idpass[elec_size] |= 1 << 1;
     
@@ -794,7 +806,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /////////////////////////////
    for(size_t imet= 0 ; imet < met->size(); imet++)
      {
-       met_pt[met_size]    = met->at(imet).pt();
+       met_pt[met_size]  = met->at(imet).pt();
        met_phi[met_size] = met->at(imet).phi();
        met_size++;
       }
@@ -805,6 +817,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
    mytree->Fill();
    if(debug_) std::cout<<"end"<<std::endl;
+  
 }
 
 
