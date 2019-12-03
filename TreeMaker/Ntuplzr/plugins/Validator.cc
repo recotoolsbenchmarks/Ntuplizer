@@ -55,6 +55,7 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -117,17 +118,18 @@ private:
   bool debug_;
   edm::Service<TFileService> fs_;
   edm::EDGetTokenT<std::vector<reco::Vertex>>      verticesToken_     ;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileUpToken_       ;
   edm::EDGetTokenT<std::vector<reco::GenParticle>> genPartsToken_     ;
   edm::EDGetTokenT<std::vector<reco::GenJet>>      genJetsToken_      ;
-  edm::EDGetTokenT<std::vector<reco::GenMET>>      genMetToken_      ;
+  edm::EDGetTokenT<std::vector<reco::GenMET>>      genMetToken_       ;
   edm::EDGetTokenT<std::vector<pat::Photon>>       photnsToken_       ; 
   edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
-  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_        ;
+  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_  ;
   edm::EDGetTokenT<std::vector<pat::Muon>>         muonsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Tau>>          tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
   edm::EDGetTokenT<std::vector<pat::MET>>          metToken_          ;
-  //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_         ;
+  //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_       ;
   
   const ME0Geometry*      ME0Geometry_;
   
@@ -136,6 +138,9 @@ private:
   
   int vtx_size;
   float vtx_pt2[kMaxVertices];
+
+  int npuVertices;
+  float trueInteractions; 
   
   int genpart_size;
   float genpart_pt[kMaxParticle],genpart_eta[kMaxParticle],genpart_phi[kMaxParticle],genpart_mass[kMaxParticle];
@@ -178,6 +183,7 @@ private:
 Validator::Validator(const edm::ParameterSet& iConfig):
   debug_(iConfig.getParameter<bool>("debug")),
   verticesToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
+  pileUpToken_(consumes<std::vector<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("pileUp"))),
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
   genMetToken_(consumes<std::vector<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMet"))),
@@ -200,6 +206,10 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("evt_size",&evt_size, "evt_size/I");
     mytree->Branch("vtx_size",&vtx_size, "vtx_size/I");
     mytree->Branch("vtx_pt2",vtx_pt2, "vtx_pt2[vtx_size]/F");
+
+
+    mytree->Branch("npuVertices",&npuVertices, "npuVertices/I");
+    mytree->Branch("trueInteractions",&trueInteractions, "trueInteractions/F");
     
     mytree->Branch("genpart_size",&genpart_size, "genpart_size/I");
     mytree->Branch("genpart_pid", genpart_pid, "genpart_pid[genpart_size]/I");
@@ -302,8 +312,12 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   if(debug_) std::cout<<"here starts the event:"<<std::endl;
   
+
   Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(verticesToken_, vertices);
+
+  edm::Handle<std::vector<PileupSummaryInfo>>  PupInfo;
+  iEvent.getByToken(pileUpToken_, PupInfo);
 
   Handle<std::vector<reco::GenParticle>> genParts;
   iEvent.getByToken(genPartsToken_, genParts);
@@ -339,16 +353,18 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     
   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
-  vtx_size      = 0;
-  genpart_size  = 0;
-  genjet_size   = 0;
-  genmet_size   = 0;
-  elec_size     = 0;
-  jet_size      = 0;
-  muon_size     = 0;
-  met_size      = 0;
-  gamma_size    = 0;
-  tau_size      = 0;
+  vtx_size         = 0;
+  npuVertices      = 0.;
+  trueInteractions = 0.;
+  genpart_size     = 0;
+  genjet_size      = 0;
+  genmet_size      = 0;
+  elec_size        = 0;
+  jet_size         = 0;
+  muon_size        = 0;
+  met_size         = 0;
+  gamma_size       = 0;
+  tau_size         = 0;
 
   if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl; 
   
@@ -372,10 +388,18 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (prVtx < 0) return;
   if(debug_)  std::cout<<"Here I am : got vertex infor right "<<std::endl;
 
+  /////////////////////////////
+  //////Pileup info////////////
+  /////////////////////////////
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
 
-  
-  
-    
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+    if(PVI->getBunchCrossing()==  0){ 
+      npuVertices   += PVI->getPU_NumInteractions(); 
+      trueInteractions = PVI->getTrueNumInteractions();  
+    }  
+  }
+  if(debug_)  std::cout<<"Here I am : got pileup info right "<<std::endl;
   /////////////////////////////
   //////Gen Particle info//////
   /////////////////////////////
