@@ -34,6 +34,7 @@ If you aim at contributing to the repository, you need to fork this repository (
 ```
 git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
 cd ../; mv new/* .
+cp -r new/.git .
 rm -rf new
 scram b -j 8
 cd TreeMaker/Ntuplzr/
