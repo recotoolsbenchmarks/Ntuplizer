@@ -195,10 +195,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
   metToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met")))
   { 
-  
-  
     if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
-    
     ME0Geometry_ = 0;
     evt_size     = 0;
     usesResource("TFileService");
@@ -206,7 +203,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("evt_size",&evt_size, "evt_size/I");
     mytree->Branch("vtx_size",&vtx_size, "vtx_size/I");
     mytree->Branch("vtx_pt2",vtx_pt2, "vtx_pt2[vtx_size]/F");
-
 
     mytree->Branch("npuVertices",&npuVertices, "npuVertices/I");
     mytree->Branch("trueInteractions",&trueInteractions, "trueInteractions/F");
@@ -243,7 +239,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("gamma_idpass", gamma_idpass, "gamma_idpass[gamma_size]/i");
     mytree->Branch("gamma_isopass", gamma_isopass, "gamma_isopass[gamma_size]/i");
     
-    
     mytree->Branch("elec_size",&elec_size, "elec_size/I");
     mytree->Branch("elec_pt",elec_pt, "elec_pt[elec_size]/F");
     mytree->Branch("elec_eta",elec_eta, "elec_eta[elec_size]/F");
@@ -278,7 +273,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("tau_combinediso",tau_combinediso, "tau_combinediso[tau_size]/F");
     mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
     
-    
     mytree->Branch("jet_size",&jet_size, "jet_size/I");
     mytree->Branch("jet_pt",jet_pt, "jet_pt[jet_size]/F");
     mytree->Branch("jet_eta",jet_eta, "jet_eta[jet_size]/F");
@@ -288,15 +282,12 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("jet_DeepJET",jet_DeepJET,"jet_DeepJET[jet_size]/F");
     mytree->Branch("jet_btag",jet_btag,"jet_btag[jet_size]/i");
     
-    
     mytree->Branch("met_size",&met_size, "met_size/I");
     mytree->Branch("met_pt", met_pt, "met_pt[met_size]/F");
     mytree->Branch("met_phi",met_phi, "met_phi[met_size]/F");
     if(debug_)      std::cout<<"Here I am : ending constructor "<<std::endl;
 }
-  
-  
-
+ 
 
 Validator::~Validator()
 {}
@@ -311,8 +302,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   if(debug_) std::cout<<"here starts the event:"<<std::endl;
-  
-
+ 
   Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(verticesToken_, vertices);
 
@@ -327,8 +317,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<std::vector<reco::GenMET>> genMet;
   iEvent.getByToken(genMetToken_, genMet);
-
-
+	
   Handle<std::vector<pat::Photon>> photns;
   iEvent.getByToken(photnsToken_, photns);
   
@@ -337,7 +326,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Handle<std::vector<reco::GsfElectron>> elecs;
   //iEvent.getByToken(elecsToken_, elecs);
-
 
   Handle<std::vector<pat::Muon>> muons;
   iEvent.getByToken(muonsToken_, muons);
@@ -351,7 +339,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<pat::MET>> met;
   iEvent.getByToken(metToken_, met);
 
-    
   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
   vtx_size         = 0;
   npuVertices      = 0.;
@@ -366,13 +353,10 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   gamma_size       = 0;
   tau_size         = 0;
 
-  if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl; 
-  
+  if(debug_) std::cout<<"Here I am : initalised number of particles=0 in the event "<<std::endl;   
   evt_size++;
-
   if(debug_) std::cout<<"Event:"<<evt_size<<std::endl;
 
-  
   /////////////////////////////
   //////vertices info//////
   /////////////////////////////
@@ -413,7 +397,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //GenParticle information
   for (size_t i = 0; i < genParts->size(); i++) {
-
     genpart_pid[genpart_size]       = genParts->at(i).pdgId();
     genpart_status[genpart_size]    = genParts->at(i).status();
     genpart_pt[genpart_size]        = genParts->at(i).pt();
@@ -428,7 +411,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    genpart_m1[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
 	    genpart_m2[genpart_size] = distance(vectorCandidate.begin(), itCandidate);
 	  }
-	
       }
     else
       {
@@ -487,8 +469,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   /////////////////////////////
   //GenMET information
   /////////////////////////////
-
-   for(size_t imet= 0 ; imet < genMet->size(); imet++)
+  for(size_t imet= 0 ; imet < genMet->size(); imet++)
      {
        genmet_pt[genmet_size]  = genMet->at(imet).pt();
        genmet_phi[genmet_size] = genMet->at(imet).phi();
@@ -582,9 +563,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (elecs->at(ie).pt() < 20.) {
 	isLoose  = (mvaValue  > -0.661);
 	isMedium = (mvaValue > 0.885);
-	isTight  = (mvaValue  > 0.986);
-     	
-	
+	isTight  = (mvaValue  > 0.986);  	
       }
       else {
 	isLoose  = (mvaValue  > -0.797);
@@ -619,8 +598,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       elec_idpass[elec_size] |= 1 << 1;
     
     if(isTight)
-      elec_idpass[elec_size] |= 1 << 2;
-    
+      elec_idpass[elec_size] |= 1 << 2;  
     
     if(elec_reliso[elec_size] < 0.1)
       elec_isopass[elec_size] |= 1 << 0;
@@ -664,7 +642,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       int isLoose = (int) (fabs(muons->at(im).eta()) < 2.4 && muon::isLooseMuon(muons->at(im))) || (fabs(muons->at(im).eta()) > 2.4 && isME0MuonSelNew(muons->at(im), 0.077, dPhiCut, dPhiBendCut, iSetup));
 
-
       if(isLoose)
 	muon_idpass[muon_size] |= 1 << 0;
 	
@@ -687,10 +664,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if(isTight)
 	muon_idpass[muon_size] |= 1 << 2;
-
-      
-      
-      
       //CutBasedIdLoosemuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdLoose);
       //CutBasedIdMediummuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdMedium);
       //CutBasedIdTightmuon[muon_size] = muons->at(im).passed(reco::Muon::CutBasedIdTight);
@@ -698,9 +671,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //PFIsoMediummuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoMedium);
       //
       //PFIsoTightmuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoTight);
-      
-      
-      
+         
       if(muon_reliso[muon_size] < 0.1)
 	muon_isopass[muon_size] |= 1 << 0;
       
@@ -712,8 +683,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if(muon_reliso[muon_size] < 0.4)
 	muon_isopass[muon_size] |= 1 << 3;
-      
-      
       
       muon_size++;
       if(muon_size>kMaxMuonLoose) break;
@@ -759,7 +728,6 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if(tau_combinediso[tau_size] < 5.)
        tau_isopass[tau_size] |= 1 << 3;
      
-
      tau_size++;
      if(tau_size>kMaxTau) break; 
    }
