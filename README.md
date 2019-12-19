@@ -66,6 +66,7 @@ git cms-merge-topic rauser:DeepJetPhaseII_10_4_X
 mkdir new; cd new
 git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 cd ../; mv new/* .
+cp -r new/.git .
 rm -rf new
 scram b -j 8
 cd TreeMaker/Ntuplzr/
