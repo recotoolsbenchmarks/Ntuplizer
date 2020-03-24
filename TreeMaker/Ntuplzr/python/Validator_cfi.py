@@ -14,5 +14,7 @@ myana = cms.EDAnalyzer('Validator',
                        muons          = cms.InputTag("slimmedMuons" ),
                        taus           = cms.InputTag("slimmedTaus"),
                        jets           = cms.InputTag("slimmedJetsPuppi"),
+                       jetschs        = cms.InputTag("slimmedJets"),
                        met            = cms.InputTag("slimmedMETsPuppi"),
+                       metpf          = cms.InputTag("slimmedMETs"),
 )

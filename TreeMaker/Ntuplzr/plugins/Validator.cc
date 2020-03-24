@@ -128,7 +128,9 @@ private:
   edm::EDGetTokenT<std::vector<pat::Muon>>         muonsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Tau>>          tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
+  edm::EDGetTokenT<std::vector<pat::Jet>>          jetschsToken_      ;
   edm::EDGetTokenT<std::vector<pat::MET>>          metToken_          ;
+  edm::EDGetTokenT<std::vector<pat::MET>>          metpfToken_        ;
   //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_       ;
   
   const ME0Geometry*      ME0Geometry_;
@@ -168,14 +170,25 @@ private:
   float tau_decaymode[kMaxTau], tau_neutraliso[kMaxTau], tau_chargediso[kMaxTau], tau_combinediso[kMaxTau], tau_pt[kMaxTau], tau_eta[kMaxTau], tau_phi[kMaxTau], tau_mass[kMaxTau]; 
   uint32_t tau_isopass[kMaxTau];
   
-  int jet_size; 
-  float jet_pt[kMaxJet], jet_eta[kMaxJet], jet_phi[kMaxJet], jet_mass[kMaxJet];
-  uint32_t jet_idpass[kMaxJet];
-  float jet_DeepJET[kMaxJet];
-  uint32_t jet_btag[kMaxJet];
-  
-  int met_size;
-  float met_pt[kMaxMissingET],met_phi[kMaxMissingET];
+  int jetpuppi_size; 
+  float jetpuppi_pt[kMaxJet], jetpuppi_eta[kMaxJet], jetpuppi_phi[kMaxJet], jetpuppi_mass[kMaxJet];
+  uint32_t jetpuppi_idpass[kMaxJet];
+  float jetpuppi_DeepJET[kMaxJet];
+  uint32_t jetpuppi_btag[kMaxJet];
+
+  int jetchs_size; 
+  float jetchs_pt[kMaxJet], jetchs_eta[kMaxJet], jetchs_phi[kMaxJet], jetchs_mass[kMaxJet];
+  uint32_t jetchs_idpass[kMaxJet];
+  float jetchs_DeepJET[kMaxJet];
+  uint32_t jetchs_btag[kMaxJet];
+
+  int metpuppi_size;
+  float metpuppi_pt[kMaxMissingET],metpuppi_phi[kMaxMissingET];
+
+  int metpf_size;
+  float metpf_pt[kMaxMissingET],metpf_phi[kMaxMissingET];
+
+
 };
 
 
@@ -193,7 +206,9 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   muonsToken_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
-  metToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met")))
+  jetschsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetschs"))),
+  metToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met"))),
+  metpfToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metpf")))
   { 
     if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
     ME0Geometry_ = 0;
@@ -273,18 +288,31 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("tau_combinediso",tau_combinediso, "tau_combinediso[tau_size]/F");
     mytree->Branch("tau_isopass", tau_isopass, "tau_isopass[tau_size]/i");
     
-    mytree->Branch("jet_size",&jet_size, "jet_size/I");
-    mytree->Branch("jet_pt",jet_pt, "jet_pt[jet_size]/F");
-    mytree->Branch("jet_eta",jet_eta, "jet_eta[jet_size]/F");
-    mytree->Branch("jet_phi",jet_phi, "jet_phi[jet_size]/F");
-    mytree->Branch("jet_mass",jet_mass, "jet_mass[jet_size]/F");
-    mytree->Branch("jet_idpass", jet_idpass, "jet_idpass[jet_size]/i");
-    mytree->Branch("jet_DeepJET",jet_DeepJET,"jet_DeepJET[jet_size]/F");
-    mytree->Branch("jet_btag",jet_btag,"jet_btag[jet_size]/i");
+    mytree->Branch("jetpuppi_size",&jetpuppi_size, "jetpuppi_size/I");
+    mytree->Branch("jetpuppi_pt",jetpuppi_pt, "jetpuppi_pt[jetpuppi_size]/F");
+    mytree->Branch("jetpuppi_eta",jetpuppi_eta, "jetpuppi_eta[jetpuppi_size]/F");
+    mytree->Branch("jetpuppi_phi",jetpuppi_phi, "jetpuppi_phi[jetpuppi_size]/F");
+    mytree->Branch("jetpuppi_mass",jetpuppi_mass, "jetpuppi_mass[jetpuppi_size]/F");
+    mytree->Branch("jetpuppi_idpass", jetpuppi_idpass, "jetpuppi_idpass[jetpuppi_size]/i");
+    mytree->Branch("jetpuppi_DeepJET",jetpuppi_DeepJET,"jetpuppi_DeepJET[jetpuppi_size]/F");
+    mytree->Branch("jetpuppi_btag",jetpuppi_btag,"jetpuppi_btag[jetpuppi_size]/i");
+
+    mytree->Branch("jetchs_size",&jetchs_size, "jetchs_size/I");
+    mytree->Branch("jetchs_pt",jetchs_pt, "jetchs_pt[jetchs_size]/F");
+    mytree->Branch("jetchs_eta",jetchs_eta, "jetchs_eta[jetchs_size]/F");
+    mytree->Branch("jetchs_phi",jetchs_phi, "jetchs_phi[jetchs_size]/F");
+    mytree->Branch("jetchs_mass",jetchs_mass, "jetchs_mass[jetchs_size]/F");
+    mytree->Branch("jetchs_idpass", jetchs_idpass, "jetchs_idpass[jetchs_size]/i");
+    mytree->Branch("jetchs_DeepJET",jetchs_DeepJET,"jetchs_DeepJET[jetchs_size]/F");
+    mytree->Branch("jetchs_btag",jetchs_btag,"jetchs_btag[jetchs_size]/i");
     
-    mytree->Branch("met_size",&met_size, "met_size/I");
-    mytree->Branch("met_pt", met_pt, "met_pt[met_size]/F");
-    mytree->Branch("met_phi",met_phi, "met_phi[met_size]/F");
+    mytree->Branch("metpuppi_size",&metpuppi_size, "metpuppi_size/I");
+    mytree->Branch("metpuppi_pt", metpuppi_pt, "metpuppi_pt[metpuppi_size]/F");
+    mytree->Branch("metpuppi_phi",metpuppi_phi, "metpuppi_phi[metpuppi_size]/F");
+
+    mytree->Branch("metpf_size",&metpf_size, "metpf_size/I");
+    mytree->Branch("metpf_pt", metpf_pt, "metpf_pt[metpf_size]/F");
+    mytree->Branch("metpf_phi",metpf_phi, "metpf_phi[metpf_size]/F");
     if(debug_)      std::cout<<"Here I am : ending constructor "<<std::endl;
 }
  
@@ -336,8 +364,14 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<pat::Jet>> jets;
   iEvent.getByToken(jetsToken_, jets);
 
+  Handle<std::vector<pat::Jet>> jetschs;
+  iEvent.getByToken(jetschsToken_, jetschs);
+
   Handle<std::vector<pat::MET>> met;
   iEvent.getByToken(metToken_, met);
+
+  Handle<std::vector<pat::MET>> metpf;
+  iEvent.getByToken(metpfToken_, metpf);
 
   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
   vtx_size         = 0;
@@ -347,9 +381,11 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   genjet_size      = 0;
   genmet_size      = 0;
   elec_size        = 0;
-  jet_size         = 0;
+  jetpuppi_size    = 0;
+  jetchs_size      = 0;
   muon_size        = 0;
-  met_size         = 0;
+  metpuppi_size    = 0;
+  metpf_size       = 0;
   gamma_size       = 0;
   tau_size         = 0;
 
@@ -473,9 +509,10 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        genmet_pt[genmet_size]  = genMet->at(imet).pt();
        genmet_phi[genmet_size] = genMet->at(imet).phi();
+       if(debug_)   std::cout<<"genMet:"<< genmet_pt[genmet_size] << std::endl;
        genmet_size++;
       }
-  
+
   /////////////////////////////
   //Photon information         
   /////////////////////////////                                                                                                
@@ -619,7 +656,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout<<elec_size<<std::endl;
   if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
 
-
+ 
   /////////////////////////////
   // Muon information
   /////////////////////////////
@@ -738,18 +775,26 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /////////////////////////////
    //Jet information
    /////////////////////////////
+
+   if(debug_)
+     {
+       //std::cout<<"Puppi jets info:"<<std::endl;
+       //std::cout<< " jet pt,eta, phi, mass, deepJET:"<<  std::endl;
+     }
    for(size_t ij= 0 ; ij < jets->size(); ij++)
      {
        //if (jets->at(ij).pt() < 20.) continue;
        //if (fabs(jets->at(ij).eta()) > 5) continue;
        //
-       jet_pt[jet_size]     = jets->at(ij).pt();
-       jet_eta[jet_size]    = jets->at(ij).eta();
-       jet_phi[jet_size]    = jets->at(ij).phi();
-       jet_mass[jet_size]   = jets->at(ij).mass();
-       jet_idpass[jet_size] = 0;
-       jet_btag[jet_size]   = 0;
 
+       jetpuppi_pt[jetpuppi_size]     = jets->at(ij).pt();
+       jetpuppi_eta[jetpuppi_size]    = jets->at(ij).eta();
+       jetpuppi_phi[jetpuppi_size]    = jets->at(ij).phi();
+       jetpuppi_mass[jetpuppi_size]   = jets->at(ij).mass();
+       jetpuppi_idpass[jetpuppi_size] = 0;
+       jetpuppi_btag[jetpuppi_size]   = 0;
+
+       
        bool isLoose(0), isMedium(0), isTight(0);
        if( (jets->at(ij).numberOfDaughters() > 1 ) && ( jets->at(ij).neutralEmEnergyFraction()< 0.99 ) && ( jets->at(ij).neutralHadronEnergyFraction() < 0.99 ))
        	 {
@@ -762,49 +807,133 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
 
        if(isLoose)
-	 jet_idpass[jet_size] |= 1 << 0;
+	 jetpuppi_idpass[jetpuppi_size] |= 1 << 0;
 	   
        if(isMedium)
-	 jet_idpass[jet_size] |= 1 << 1;
+	 jetpuppi_idpass[jetpuppi_size] |= 1 << 1;
 
        if(isTight)
-	 jet_idpass[jet_size] |= 1 << 2;
+	 jetpuppi_idpass[jetpuppi_size] |= 1 << 2;
        
        float DeepJETb    = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probb");
        float DeepJETbb   = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:probbb");
        float DeepJETlepb = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
-       jet_DeepJET[jet_size]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
+       jetpuppi_DeepJET[jetpuppi_size]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
+             
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.054 )
+	 jetpuppi_btag[jetpuppi_size] |= 1 << 0; 
+
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.283 )
+	 jetpuppi_btag[jetpuppi_size] |= 1 << 1; 
+
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.668 )
+	 jetpuppi_btag[jetpuppi_size] |= 1 << 2; 
        
-       if(jet_DeepJET[jet_size] > 0.054 )
-	 jet_btag[jet_size] |= 1 << 0; 
-
-       if(jet_DeepJET[jet_size] > 0.283 )
-	 jet_btag[jet_size] |= 1 << 1; 
-
-       if(jet_DeepJET[jet_size] > 0.668 )
-	 jet_btag[jet_size] |= 1 << 2; 
-       
-       if(debug_)
-	   std::cout<<"jet_DeepJET: "<< jet_DeepJET[jet_size] <<std::endl;
-
-       jet_size++;
-       if(jet_size>kMaxJet) break;
+       //if(debug_)
+       //std::cout<< jetpuppi_pt[jetpuppi_size] << ","<< jetpuppi_eta[jetpuppi_size] <<","<< jetpuppi_phi[jetpuppi_size] << ","<< jetpuppi_mass[jetpuppi_size]<< "," << jetpuppi_DeepJET[jetpuppi_size] << std::endl; 
+       jetpuppi_size++;
+       if(jetpuppi_size>kMaxJet) break;
      }
-   if(debug_)   std::cout<<"Here I am : got jet infor right "<<std::endl;
+   if(debug_)   std::cout<<"Here I am : got jetpuppi infor right "<<std::endl;
+  
+
+   /////////////////////////////
+   //CHSJet information
+   /////////////////////////////
+
+   if(debug_)
+     {
+       //std::cout<<"CHS jets info:"<<std::endl;
+       //std::cout<< " jet pt,eta, phi, mass, deepJET:"<<  std::endl;
+     }
+   for(size_t ij= 0 ; ij < jetschs->size(); ij++)
+     {
+       //if (jetschs->at(ij).pt() < 20.) continue;
+       //if (fabs(jetschs->at(ij).eta()) > 5) continue;
+       //
+       jetchs_pt[jetchs_size]     = jetschs->at(ij).pt();
+       jetchs_eta[jetchs_size]    = jetschs->at(ij).eta();
+       jetchs_phi[jetchs_size]    = jetschs->at(ij).phi();
+       jetchs_mass[jetchs_size]   = jetschs->at(ij).mass();
+       jetchs_idpass[jetchs_size] = 0;
+       jetchs_btag[jetchs_size]   = 0;
+	 
+       bool isLoose(0), isMedium(0), isTight(0);
+       if( (jetschs->at(ij).numberOfDaughters() > 1 ) && ( jetschs->at(ij).neutralEmEnergyFraction()< 0.99 ) && ( jetschs->at(ij).neutralHadronEnergyFraction() < 0.99 ))
+       	 {
+       	   isLoose = 1;
+       	 }
+       isMedium = isLoose;
+       if( (jetschs->at(ij).numberOfDaughters() > 1 ) && ( jetschs->at(ij).neutralEmEnergyFraction()< 0.9 ) && ( jetschs->at(ij).neutralHadronEnergyFraction() < 0.9 ))
+       	 {
+	   isTight = 1;
+	 }
+
+       if(isLoose)
+	 jetchs_idpass[jetchs_size] |= 1 << 0;
+	   
+       if(isMedium)
+	 jetchs_idpass[jetchs_size] |= 1 << 1;
+
+       if(isTight)
+	 jetchs_idpass[jetchs_size] |= 1 << 2;
+       
+       float DeepJETb    = (float) jetschs->at(ij).bDiscriminator("pfDeepFlavourJetTags:probb");
+       float DeepJETbb   = (float) jetschs->at(ij).bDiscriminator("pfDeepFlavourJetTags:probbb");
+       float DeepJETlepb = (float) jetschs->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
+       jetchs_DeepJET[jetchs_size]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
+       
+       if(jetchs_DeepJET[jetchs_size] > 0.054 )
+	 jetchs_btag[jetchs_size] |= 1 << 0; 
+
+       if(jetchs_DeepJET[jetchs_size] > 0.283 )
+	 jetchs_btag[jetchs_size] |= 1 << 1; 
+
+       if(jetchs_DeepJET[jetchs_size] > 0.668 )
+	 jetchs_btag[jetchs_size] |= 1 << 2; 
+       
+       //if(debug_)
+       // std::cout<< jetchs_pt[jetchs_size] << ","<< jetchs_eta[jetchs_size]<<","<<jetchs_phi[jetchs_size] << ","<< jetchs_mass[jetchs_size]<< "," << jetchs_DeepJET[jetchs_size] << std::endl; 
+
+       jetchs_size++;
+       if(jetchs_size>kMaxJet) break;
+     }
+   if(debug_)   std::cout<<"Here I am : got jetchs infor right "<<std::endl;
    
 
    /////////////////////////////
    //Met information
    /////////////////////////////
+   if(debug_)
+     std::cout<<"calo, CHS , track, uncorrected, corrected METs: " <<std::endl;
    for(size_t imet= 0 ; imet < met->size(); imet++)
      {
-       met_pt[met_size]  = met->at(imet).pt();
-       met_phi[met_size] = met->at(imet).phi();
-       met_size++;
+       metpuppi_pt[metpuppi_size]  = met->at(imet).pt();
+       metpuppi_phi[metpuppi_size] = met->at(imet).phi();
+       //if(debug_)
+       //std::cout<< met->at(imet).caloMETPt() << ", " << met->at(imet).corPt(pat::MET::RawChs)<< ","<< met->at(imet).corPt(pat::MET::RawTrk)<< ","
+       //	  << met->at(imet).uncorPt()<< "," << met->at(imet).pt() <<std::endl;
+       metpuppi_size++;
       }
    
    
-   if(debug_)   std::cout<<"Here I am : got met infor right "<<std::endl;
+   if(debug_)   std::cout<<"Here I am : got metpuppi infor right "<<std::endl;
+   //if(debug_)
+     //std::cout<<"genMET, calo, CHS , track, uncorrected, corrected METs: " <<std::endl;
+     //std::cout<<"calomet, CHS, track corrected, uncorrected, corrected METs: " <<std::endl;
+   
+   for(size_t imet= 0 ; imet < metpf->size(); imet++)
+     {
+       metpf_pt[metpf_size]  = metpf->at(imet).uncorPt();
+       metpf_phi[metpf_size] = metpf->at(imet).phi();
+       //if(debug_)
+       //std::cout  <<  metpf->at(imet).caloMETPt() << ", " << metpf->at(imet).corPt(pat::MET::RawChs)<< ","<< metpf->at(imet).corPt(pat::MET::RawTrk)<< ","
+       //	      << metpf->at(imet).uncorPt()<< "," << metpf->at(imet).pt() << std::endl;
+       metpf_size++;
+      }
+   
+   if(debug_)   std::cout<<"Here I am : got metpf infor right "<<std::endl;
+
    if(debug_) std::cout<<"beforeend"<<std::endl;
   
    mytree->Fill();

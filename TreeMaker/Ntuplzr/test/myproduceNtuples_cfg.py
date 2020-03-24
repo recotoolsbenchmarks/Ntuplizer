@@ -119,12 +119,33 @@ from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 # And the new name of the updated jet collection becomes selectedUpdatedPatJets+postfix
 if options.rerunBtag:
     updateJetCollection(
+        process,
+        jetSource      = cms.InputTag('slimmedJetsPuppi'),
+        pvSource       = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource       = cms.InputTag('slimmedSecondaryVertices'),
+        pfCandidates	= cms.InputTag('packedPFCandidates'),
+        jetCorrections = ('AK4PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+        btagDiscriminators = [
+            'pfDeepCSVJetTags:probb', 
+            'pfDeepCSVJetTags:probbb',
+            'pfDeepFlavourJetTags:probb',
+            'pfDeepFlavourJetTags:probbb',
+            'pfDeepFlavourJetTags:problepb'
+        ],
+        postfix = postfix
+    )
+    process.myana.jets = cms.InputTag(patJetSource)
+    #print patJetSource
+
+    postfix='CHSWithNewTraining'
+    patJetSource = 'selectedUpdatedPatJets'+postfix
+    updateJetCollection(
 	process,
-	jetSource      = cms.InputTag('slimmedJetsPuppi'),
+	jetSource      = cms.InputTag('slimmedJets'),
 	pvSource       = cms.InputTag('offlineSlimmedPrimaryVertices'),
 	svSource       = cms.InputTag('slimmedSecondaryVertices'),
 	pfCandidates	= cms.InputTag('packedPFCandidates'),
-	jetCorrections = ('AK4PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+	jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
 	btagDiscriminators = [
 	    'pfDeepCSVJetTags:probb', 
 	    'pfDeepCSVJetTags:probbb',
@@ -134,7 +155,11 @@ if options.rerunBtag:
 	],
 	postfix = postfix
     )
-    process.myana.jets = cms.InputTag(patJetSource)
+    #print patJetSource
+    process.myana.jetschs = cms.InputTag(patJetSource)
+
+
+    
 
 for key in options._register.keys():
     print "{:<20} : {}".format(key, getattr(options, key))
@@ -155,11 +180,27 @@ for mod in process.filters_().itervalues():
 #$$
 
 # run
+#process.check  = cms.OutputModule("PoolOutputModule",
+#                               compressionAlgorithm = cms.untracked.string('LZMA'),
+#                               compressionLevel = cms.untracked.int32(4),
+#                               eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
+#                               #dataset = cms.untracked.PSet(                                                                                                                                        #                                  #dataTier = cms.untracked.string('AODSIM'),                                                                                                                        #                                  #filterName = cms.untracked.string('')                                                                                                                             #                               #),                                                                                                                                                                          
+#                               fileName = cms.untracked.string("out.root"),
+#                               #SelectEvents = cms.untracked.PSet(                                                                                                                                   #                               #               SelectEvents = cms.vstring("p")                                                                                                                       #                               #               )                                                                                                                                                            
+#                               )
+#
+
+
+
 
 #$$
 # process.p = cms.Path(process.phase2Egamma*process.myana)
 process.p = cms.Path(process.phase2Egamma*process.myana, process.tsk)
+#process.p = cms.Path(process.myana, process.tsk)
+#process.e = cms.EndPath(process.check)
 #process.p = cms.Path(process.myana)
 #$$
 
 #open('ntupleFileDump.py','w').write(process.dumpPython())
+
+
