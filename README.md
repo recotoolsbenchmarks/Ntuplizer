@@ -14,7 +14,7 @@ Table of contents
 Making a PR
 =====
 
-
+```
 cmsrel CMSSW_11_1_0_pre6
 cd CMSSW_11_1_0_pre6/src/
 cmsenv
