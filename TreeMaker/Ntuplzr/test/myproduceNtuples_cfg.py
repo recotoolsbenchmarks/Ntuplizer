@@ -45,7 +45,8 @@ process = cms.Process("MyAna", eras.Phase2)
 
 # Geometry, GT, and other standard sequences
 #$$ process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D52Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -55,8 +56,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun4_realistic_v2', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 # Log settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -77,6 +78,8 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
+#options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/111X_mcRun3_2021_realistic_v3-v1/20000/DAF5417B-BAE7-B843-A47F-8C728774661F.root']
+options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D52PU200_ext1-v1/20000/DDF640CE-0514-3143-A1EC-27DA32BA2047.root']
 #options.inputFiles = '/store/mc/PhaseIITDRSpring19MiniAOD/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/B155F8E9-1F3C-A741-8E86-5BEABD3AFC13.root'
 #options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/863B8ABC-8FBA-0742-8092-71B024307821.root',
 #                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/91644A10-3DBF-9249-8D98-70061BC075E9.root',
@@ -84,7 +87,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 #options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_QCD_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/250000/1BDEBB5D-01C8-6645-8F72-082549F9DD9B.root']
 #options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/PhotonFlatPt8To150/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v1/230000/E8D9CEB8-64AC-C641-9E59-C488B6BE706F.root']
-options.inputFiles = ['/store/relval/CMSSW_10_6_0_patch2/RelValTTbar_14TeV/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v3_2023D41PU200-v1/10000/FFF6B0DE-6A3A-D04C-9A77-C195F92F8577.root']
+#options.inputFiles = ['/store/relval/CMSSW_10_6_0_patch2/RelValTTbar_14TeV/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v3_2023D41PU200-v1/10000/FFF6B0DE-6A3A-D04C-9A77-C195F92F8577.root']
 #options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
 
 
@@ -189,8 +192,6 @@ for mod in process.filters_().itervalues():
 #                               #SelectEvents = cms.untracked.PSet(                                                                                                                                   #                               #               SelectEvents = cms.vstring("p")                                                                                                                       #                               #               )                                                                                                                                                            
 #                               )
 #
-
-
 
 
 #$$

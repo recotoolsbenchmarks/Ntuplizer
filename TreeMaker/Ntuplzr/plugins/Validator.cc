@@ -115,22 +115,24 @@ private:
   
   bool isME0MuonSelNew(reco::Muon, double, double, double, edm::EventSetup const& );
   float calculate_demetraIsolation(const pat::Tau&) const;
-  bool debug_;
+  bool debug_, extendFormat_;
   edm::Service<TFileService> fs_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>>      verticesToken_     ;
-  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileUpToken_       ;
-  edm::EDGetTokenT<std::vector<reco::GenParticle>> genPartsToken_     ;
-  edm::EDGetTokenT<std::vector<reco::GenJet>>      genJetsToken_      ;
-  edm::EDGetTokenT<std::vector<reco::GenMET>>      genMetToken_       ;
-  edm::EDGetTokenT<std::vector<pat::Photon>>       photnsToken_       ; 
-  edm::EDGetTokenT<std::vector<pat::Electron>>     elecsToken_        ;
-  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>     elecsToken_  ;
-  edm::EDGetTokenT<std::vector<pat::Muon>>         muonsToken_        ;
-  edm::EDGetTokenT<std::vector<pat::Tau>>          tausToken_         ;
-  edm::EDGetTokenT<std::vector<pat::Jet>>          jetsToken_         ;
-  edm::EDGetTokenT<std::vector<pat::Jet>>          jetschsToken_      ;
-  edm::EDGetTokenT<std::vector<pat::MET>>          metToken_          ;
-  edm::EDGetTokenT<std::vector<pat::MET>>          metpfToken_        ;
+  edm::EDGetTokenT<std::vector<reco::Vertex>>         verticesToken_     ;
+  edm::EDGetTokenT<std::vector<reco::Vertex>>         vertices4DToken_   ;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate>> pfCandidToken_     ;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>>    pileUpToken_       ;
+  edm::EDGetTokenT<std::vector<reco::GenParticle>>    genPartsToken_     ;
+  edm::EDGetTokenT<std::vector<reco::GenJet>>         genJetsToken_      ;
+  edm::EDGetTokenT<std::vector<reco::GenMET>>         genMetToken_       ;
+  edm::EDGetTokenT<std::vector<pat::Photon>>          photnsToken_       ; 
+  edm::EDGetTokenT<std::vector<pat::Electron>>        elecsToken_        ;
+  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>  elecsToken_  ;
+  edm::EDGetTokenT<std::vector<pat::Muon>>            muonsToken_        ;
+  edm::EDGetTokenT<std::vector<pat::Tau>>             tausToken_         ;
+  edm::EDGetTokenT<std::vector<pat::Jet>>             jetsToken_         ;
+  edm::EDGetTokenT<std::vector<pat::Jet>>             jetschsToken_      ;
+  edm::EDGetTokenT<std::vector<pat::MET>>             metToken_          ;
+  edm::EDGetTokenT<std::vector<pat::MET>>             metpfToken_        ;
   //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_       ;
   
   const ME0Geometry*      ME0Geometry_;
@@ -139,7 +141,17 @@ private:
   int evt_size;
   
   int vtx_size;
+  float vtx_x[kMaxVertices], vtx_y[kMaxVertices], vtx_z[kMaxVertices];
   float vtx_pt2[kMaxVertices];
+
+  int vtx4D_size;
+  float vtx4D_x[kMaxVertices], vtx4D_y[kMaxVertices], vtx4D_z[kMaxVertices], vtx4D_t[kMaxVertices], vtx4D_terr[kMaxVertices];
+  float vtx4D_pt2[kMaxVertices];
+
+
+  int pfcand_size,  pfcand_pid[kMaxParticle];
+  float pfcand_pt[kMaxParticle],pfcand_eta[kMaxParticle],pfcand_phi[kMaxParticle],pfcand_mass[kMaxParticle];
+  float pfcand_t[kMaxParticle], pfcand_terr[kMaxParticle];
 
   int npuVertices;
   float trueInteractions; 
@@ -195,7 +207,10 @@ private:
 
 Validator::Validator(const edm::ParameterSet& iConfig):
   debug_(iConfig.getParameter<bool>("debug")),
+  extendFormat_(iConfig.getParameter<bool>("extendFormat")),
   verticesToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
+  vertices4DToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices4D"))),
+  pfCandidToken_(consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfCandid"))),
   pileUpToken_(consumes<std::vector<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("pileUp"))),
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
@@ -211,13 +226,40 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   metpfToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metpf")))
   { 
     if(debug_)  std::cout<<"Here I am : in constructor "<<std::endl;
+
     ME0Geometry_ = 0;
     evt_size     = 0;
     usesResource("TFileService");
     mytree   = fs_->make<TTree>("mytree","TestTree");
     mytree->Branch("evt_size",&evt_size, "evt_size/I");
+
     mytree->Branch("vtx_size",&vtx_size, "vtx_size/I");
+    mytree->Branch("vtx_x",vtx_x, "vtx_x[vtx_size]/F");
+    mytree->Branch("vtx_y",vtx_y, "vtx_y[vtx_size]/F");
+    mytree->Branch("vtx_z",vtx_z, "vtx_z[vtx_size]/F");
     mytree->Branch("vtx_pt2",vtx_pt2, "vtx_pt2[vtx_size]/F");
+
+    if(extendFormat_)
+      {
+	mytree->Branch("vtx4D_size",&vtx4D_size, "vtx4D_size/I");
+	mytree->Branch("vtx4D_x",vtx4D_x, "vtx4D_x[vtx4D_size]/F");
+	mytree->Branch("vtx4D_y",vtx4D_y, "vtx4D_y[vtx4D_size]/F");
+	mytree->Branch("vtx4D_z",vtx4D_z, "vtx4D_z[vtx4D_size]/F");
+	mytree->Branch("vtx4D_t",vtx4D_t, "vtx4D_t[vtx4D_size]/F");
+	mytree->Branch("vtx4D_terr",vtx4D_terr, "vtx4D_terr[vtx4D_size]/F");
+	mytree->Branch("vtx4D_pt2",vtx4D_pt2, "vtx4D_pt2[vtx4D_size]/F");
+
+	mytree->Branch("pfcand_size",&pfcand_size, "pfcand_size/I");
+	mytree->Branch("pfcand_pid", pfcand_pid, "pfcand_pid[pfcand_size]/I");
+	mytree->Branch("pfcand_pt",pfcand_pt, "pfcand_pt[pfcand_size]/F");
+	mytree->Branch("pfcand_eta",pfcand_eta, "pfcand_eta[pfcand_size]/F");
+	mytree->Branch("pfcand_phi",pfcand_phi, "pfcand_phi[pfcand_size]/F");
+	mytree->Branch("pfcand_mass",pfcand_mass, "pfcand_mass[pfcand_size]/F");
+	mytree->Branch("pfcand_t",pfcand_t, "pfcand_t[pfcand_size]/F");
+	mytree->Branch("pfcand_terr",pfcand_terr, "pfcand_terr[pfcand_size]/F");
+
+
+      }
 
     mytree->Branch("npuVertices",&npuVertices, "npuVertices/I");
     mytree->Branch("trueInteractions",&trueInteractions, "trueInteractions/F");
@@ -334,6 +376,12 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(verticesToken_, vertices);
 
+  Handle<std::vector<reco::Vertex>> vertices4D;
+  iEvent.getByToken(vertices4DToken_, vertices4D);
+
+  Handle<std::vector<pat::PackedCandidate>> pfCandids;
+  iEvent.getByToken(pfCandidToken_, pfCandids);
+
   edm::Handle<std::vector<PileupSummaryInfo>>  PupInfo;
   iEvent.getByToken(pileUpToken_, PupInfo);
 
@@ -375,6 +423,11 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(debug_) std::cout<<"Here I am : got handles right "<<std::endl;  
   vtx_size         = 0;
+  if(extendFormat_)
+    {
+      vtx4D_size   = 0;
+      pfcand_size  = 0;
+    }
   npuVertices      = 0.;
   trueInteractions = 0.;
   genpart_size     = 0;
@@ -401,12 +454,75 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (size_t i = 0; i < vertices->size(); i++) {
     if (vertices->at(i).isFake()) continue;
     if (vertices->at(i).ndof() <= 4) continue;
+    //if (fabs(vertices->at(i).position().rho()) > 2.) continue;
+    //if (fabs(vertices->at(i).z()) > 24.) continue;
     if (prVtx < 0) prVtx = i;
     vtx_pt2[vtx_size] = vertices->at(i).p4().pt();
+    vtx_x[vtx_size] = vertices->at(i).x();
+    vtx_y[vtx_size] = vertices->at(i).y();
+    vtx_z[vtx_size] = vertices->at(i).z();
+    if(debug_)  std::cout<<"vertex info:"<< vtx_x[vtx_size]<< "," << vtx_y[vtx_size]<<","<< vtx_z[vtx_size]<<std::endl;
     vtx_size++;
   }
   if (prVtx < 0) return;
   if(debug_)  std::cout<<"Here I am : got vertex infor right "<<std::endl;
+
+  /////////////////////////////
+  //////4D vertices info//////
+  /////////////////////////////
+
+  if(extendFormat_)
+    {
+      int prVtx = -1;
+      for (size_t i = 0; i < vertices4D->size(); i++) {
+	if (vertices4D->at(i).isFake()) continue;
+	if (vertices4D->at(i).ndof() <= 4) continue;
+	//if (fabs(vertices->at(i).position().rho()) > 2.) continue;
+	//if (fabs(vertices->at(i).z()) > 24.) continue;
+	if (prVtx < 0) prVtx = i;
+	vtx4D_pt2[vtx4D_size] = vertices4D->at(i).p4().pt();
+	vtx4D_x[vtx4D_size]   = vertices4D->at(i).x();
+	vtx4D_y[vtx4D_size]   = vertices4D->at(i).y();
+	vtx4D_z[vtx4D_size]   = vertices4D->at(i).z();
+	vtx4D_t[vtx4D_size]   = vertices4D->at(i).t();
+	if(debug_) std::cout<<"4D vertex info:"<< vtx4D_x[vtx4D_size]<< "," << vtx4D_y[vtx4D_size]<<","<< vtx4D_z[vtx4D_size]<<","<< vtx4D_t[vtx4D_size] << ","<< vtx4D_pt2[vtx4D_size]<<std::endl;
+	vtx4D_size++;
+      }
+
+      if (prVtx < 0) return;
+      if(debug_)  std::cout<<"Here I am : got 4D vertex infor right "<<std::endl;
+      for (size_t i = 0; i < pfCandids->size(); i++) {
+	pfcand_pid[pfcand_size]       = pfCandids->at(i).pdgId();
+	pfcand_pt[pfcand_size]        = pfCandids->at(i).pt();
+	pfcand_phi[pfcand_size]       = pfCandids->at(i).phi();
+	pfcand_eta[pfcand_size]       = pfCandids->at(i).eta();
+	pfcand_mass[pfcand_size]      = pfCandids->at(i).mass();
+
+	if( pfCandids->at(i).timeError() > 0)
+	  {
+	    pfcand_t[pfcand_size]         = pfCandids->at(i).time();
+	    pfcand_terr[pfcand_size]      = pfCandids->at(i).timeError();
+	  }
+	else
+	  {
+	    pfcand_t[pfcand_size]         = -99.;
+	    pfcand_terr[pfcand_size]      = -99.;
+	  }
+	      	  
+	if(debug_) std::cout<<"PF cand info:"<< pfcand_pid[pfcand_size]
+			    << "," << pfcand_pt[pfcand_size]<<","
+			    << pfcand_phi[pfcand_size]<<","<< pfcand_eta[pfcand_size]  
+			    << ","<< pfcand_mass[pfcand_size]
+			    << ","<< pfcand_t[pfcand_size] << ","<< pfcand_terr[pfcand_size]
+			    <<std::endl;
+	
+	pfcand_size++;  
+	if(pfcand_size>kMaxParticle) break;       
+      }
+      if(debug_)  std::cout<<"Here I am : got PF candid info right "<<std::endl;
+    }
+
+
 
   /////////////////////////////
   //////Pileup info////////////
@@ -509,7 +625,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        genmet_pt[genmet_size]  = genMet->at(imet).pt();
        genmet_phi[genmet_size] = genMet->at(imet).phi();
-       if(debug_)   std::cout<<"genMet:"<< genmet_pt[genmet_size] << std::endl;
+       //if(debug_)   std::cout<<"genMet:"<< genmet_pt[genmet_size] << std::endl;
        genmet_size++;
       }
 
@@ -829,8 +945,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(jetpuppi_DeepJET[jetpuppi_size] > 0.668 )
 	 jetpuppi_btag[jetpuppi_size] |= 1 << 2; 
        
-       //if(debug_)
-       //std::cout<< jetpuppi_pt[jetpuppi_size] << ","<< jetpuppi_eta[jetpuppi_size] <<","<< jetpuppi_phi[jetpuppi_size] << ","<< jetpuppi_mass[jetpuppi_size]<< "," << jetpuppi_DeepJET[jetpuppi_size] << std::endl; 
+       if(debug_)
+       std::cout<< jetpuppi_pt[jetpuppi_size] << ","<< jetpuppi_eta[jetpuppi_size] <<","<< jetpuppi_phi[jetpuppi_size] << ","<< jetpuppi_mass[jetpuppi_size]<< "," << jetpuppi_DeepJET[jetpuppi_size] << std::endl; 
        jetpuppi_size++;
        if(jetpuppi_size>kMaxJet) break;
      }
@@ -843,8 +959,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(debug_)
      {
-       //std::cout<<"CHS jets info:"<<std::endl;
-       //std::cout<< " jet pt,eta, phi, mass, deepJET:"<<  std::endl;
+       std::cout<<"CHS jets info:"<<std::endl;
+       std::cout<< " jet pt,eta, phi, mass, deepJET:"<<  std::endl;
      }
    for(size_t ij= 0 ; ij < jetschs->size(); ij++)
      {
@@ -892,8 +1008,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(jetchs_DeepJET[jetchs_size] > 0.668 )
 	 jetchs_btag[jetchs_size] |= 1 << 2; 
        
-       //if(debug_)
-       // std::cout<< jetchs_pt[jetchs_size] << ","<< jetchs_eta[jetchs_size]<<","<<jetchs_phi[jetchs_size] << ","<< jetchs_mass[jetchs_size]<< "," << jetchs_DeepJET[jetchs_size] << std::endl; 
+       if(debug_)
+        std::cout<< jetchs_pt[jetchs_size] << ","<< jetchs_eta[jetchs_size]<<","<<jetchs_phi[jetchs_size] << ","<< jetchs_mass[jetchs_size]<< "," << jetchs_DeepJET[jetchs_size] << std::endl; 
 
        jetchs_size++;
        if(jetchs_size>kMaxJet) break;
@@ -904,8 +1020,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    /////////////////////////////
    //Met information
    /////////////////////////////
-   if(debug_)
-     std::cout<<"calo, CHS , track, uncorrected, corrected METs: " <<std::endl;
+   //if(debug_)
+   //  std::cout<<"calo, CHS , track, uncorrected, corrected METs: " <<std::endl;
    for(size_t imet= 0 ; imet < met->size(); imet++)
      {
        metpuppi_pt[metpuppi_size]  = met->at(imet).pt();
