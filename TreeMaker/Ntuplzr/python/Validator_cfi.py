@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 myana = cms.EDAnalyzer('Validator',
-                       debug          = cms.bool(True),               
+                       debug          = cms.bool(False),
+                       extendFormat   = cms.bool(False),
                        vertices       = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                       vertices4D     = cms.InputTag("offlineSlimmedPrimaryVertices4D"),
+                       pfCandid       = cms.InputTag("packedPFCandidates"),
                        pileUp         = cms.InputTag("slimmedAddPileupInfo"),
                        genParts       = cms.InputTag("prunedGenParticles"),
                        genJets        = cms.InputTag("slimmedGenJets"),
