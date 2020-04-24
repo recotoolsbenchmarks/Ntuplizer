@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
-from Configuration.StandardSequences.Eras import eras
-
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 options = VarParsing ('python')
 
 #$$
@@ -26,7 +25,7 @@ options.register('rerunBtag', True,
 )
 
 
-options.register('GlobalTag', '106X_upgrade2023_realistic_v2',
+options.register('GlobalTag', '110X_mcRun4_realistic_v3',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "Specify the global tag for the release "
@@ -41,12 +40,16 @@ options.register('Analyzr', 'Validator',
 
 options.parseArguments()
 
-process = cms.Process("MyAna", eras.Phase2)
+process = cms.Process("MyAna", Phase2C9)
 
 # Geometry, GT, and other standard sequences
 #$$ process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+
 process.load('Configuration.Geometry.GeometryExtended2026D52Reco_cff')
+
+#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -78,6 +81,7 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
+
 #options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/111X_mcRun3_2021_realistic_v3-v1/20000/DAF5417B-BAE7-B843-A47F-8C728774661F.root']
 options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D52PU200_ext1-v1/20000/DDF640CE-0514-3143-A1EC-27DA32BA2047.root']
 #options.inputFiles = '/store/mc/PhaseIITDRSpring19MiniAOD/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/B155F8E9-1F3C-A741-8E86-5BEABD3AFC13.root'
@@ -90,6 +94,9 @@ options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAOD
 #options.inputFiles = ['/store/relval/CMSSW_10_6_0_patch2/RelValTTbar_14TeV/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v3_2023D41PU200-v1/10000/FFF6B0DE-6A3A-D04C-9A77-C195F92F8577.root']
 #options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
 
+
+
+#options.inputFiles = ['/store/relval/CMSSW_11_0_0_pre13/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/20000/5E63BB51-0E53-104E-9ED4-7B2D73B5C930.root']
 
 
 process.source = cms.Source("PoolSource",
@@ -188,10 +195,8 @@ for mod in process.filters_().itervalues():
 #                               compressionAlgorithm = cms.untracked.string('LZMA'),
 #                               compressionLevel = cms.untracked.int32(4),
 #                               eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
-#                               #dataset = cms.untracked.PSet(                                                                                                                                        #                                  #dataTier = cms.untracked.string('AODSIM'),                                                                                                                        #                                  #filterName = cms.untracked.string('')                                                                                                                             #                               #),                                                                                                                                                                          
-#                               fileName = cms.untracked.string("out.root"),
-#                               #SelectEvents = cms.untracked.PSet(                                                                                                                                   #                               #               SelectEvents = cms.vstring("p")                                                                                                                       #                               #               )                                                                                                                                                            
-#                               )
+#                               #dataset = cms.untracked.PSet(                                                                                                              #                                  #dataTier = cms.untracked.string('AODSIM'),                                                                                              #                                  #filterName = cms.untracked.string('')                                                                                                   #                               #),                                                                                                                                         #                               fileName = cms.untracked.string("out.root"),
+#                               #SelectEvents = cms.untracked.PSet(                                                                                                         #                               #               SelectEvents = cms.vstring("p")                                                                                             #                               #               )                                                                                                                           #                               )
 #
 
 
