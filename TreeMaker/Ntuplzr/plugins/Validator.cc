@@ -485,6 +485,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	vtx4D_y[vtx4D_size]   = vertices4D->at(i).y();
 	vtx4D_z[vtx4D_size]   = vertices4D->at(i).z();
 	vtx4D_t[vtx4D_size]   = vertices4D->at(i).t();
+	vtx4D_terr[vtx4D_size]   = vertices4D->at(i).tError();
 	if(debug_) std::cout<<"4D vertex info:"<< vtx4D_x[vtx4D_size]<< "," << vtx4D_y[vtx4D_size]<<","<< vtx4D_z[vtx4D_size]<<","<< vtx4D_t[vtx4D_size] << ","<< vtx4D_pt2[vtx4D_size]<<std::endl;
 	vtx4D_size++;
       }
