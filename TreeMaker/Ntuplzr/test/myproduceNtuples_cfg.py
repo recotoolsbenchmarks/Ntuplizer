@@ -110,6 +110,7 @@ process.myana = cms.EDAnalyzer(moduleName)
 process.load("TreeMaker.Ntuplzr."+moduleName+"_cfi")
 
 process.myana.debug = options.debug
+process.myana.extendFormat = True
 
 #$$
 postfix='WithNewTraining'
