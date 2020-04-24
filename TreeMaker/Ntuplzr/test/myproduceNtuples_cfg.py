@@ -45,10 +45,8 @@ process = cms.Process("MyAna", Phase2C9)
 # Geometry, GT, and other standard sequences
 #$$ process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 #process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
-
-process.load('Configuration.Geometry.GeometryExtended2026D52Reco_cff')
-
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D52Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -59,7 +57,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun4_realistic_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun4_realistic_v3', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 # Log settings
@@ -81,9 +79,9 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
-
+options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/683F4232-8801-E045-AC3D-4E6550059D96.root']
 #options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/111X_mcRun3_2021_realistic_v3-v1/20000/DAF5417B-BAE7-B843-A47F-8C728774661F.root']
-options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D52PU200_ext1-v1/20000/DDF640CE-0514-3143-A1EC-27DA32BA2047.root']
+#options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D52PU200_ext1-v1/20000/DDF640CE-0514-3143-A1EC-27DA32BA2047.root']
 #options.inputFiles = '/store/mc/PhaseIITDRSpring19MiniAOD/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/B155F8E9-1F3C-A741-8E86-5BEABD3AFC13.root'
 #options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/863B8ABC-8FBA-0742-8092-71B024307821.root',
 #                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/91644A10-3DBF-9249-8D98-70061BC075E9.root',
