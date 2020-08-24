@@ -598,15 +598,15 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (genJets->at(ij).pt() < 20.) continue;
       if (fabs(genJets->at(ij).eta()) > 5) continue;
       
-      bool overlaps = false;
-      for (size_t j = 0; j < genParts->size(); j++) {
-	if (abs(genParts->at(j).pdgId()) != 11 && abs(genParts->at(j).pdgId()) != 13) continue;
-	if (fabs(genJets->at(ij).pt()-genParts->at(j).pt()) < 0.01*genParts->at(j).pt() && ROOT::Math::VectorUtil::DeltaR(genParts->at(j).p4(),genJets->at(ij).p4()) < 0.01) {
-	  overlaps = true;
-	  break;
-	}
-      }
-      if (overlaps) continue;
+      //bool overlaps = false;
+      //for (size_t j = 0; j < genParts->size(); j++) {
+      //	if (abs(genParts->at(j).pdgId()) != 11 && abs(genParts->at(j).pdgId()) != 13) continue;
+      //	if (fabs(genJets->at(ij).pt()-genParts->at(j).pt()) < 0.01*genParts->at(j).pt() && ROOT::Math::VectorUtil::DeltaR(genParts->at(j).p4(),genJets->at(ij).p4()) < 0.01) {
+      //	  overlaps = true;
+      //	  break;
+      //	}
+      //}
+      //if (overlaps) continue;
       jGenJets.push_back(ij);
       
       genjet_pt[genjet_size]  = genJets->at(ij).pt();
