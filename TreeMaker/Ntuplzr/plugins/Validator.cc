@@ -659,7 +659,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gamma_phi[gamma_size]       = photns->at(ip).phi();
       gamma_mass[gamma_size]      = photns->at(ip).mass();
       gamma_idvar[gamma_size]     = mvaValue; // MVA
-      gamma_reliso[gamma_size]    = 0.;
+      gamma_reliso[gamma_size]    = (photns->at(ip).puppiChargedHadronIso() + photns->at(ip).puppiNeutralHadronIso() + photns->at(ip).puppiPhotonIso()) / photns->at(ip).pt();
       gamma_idpass[gamma_size]    = 0;
       gamma_isopass[gamma_size]   = 0;
       
