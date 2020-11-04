@@ -673,16 +673,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	gamma_idpass[gamma_size] |= 1 << 2;
       
       if(gamma_reliso[gamma_size] < 0.1)
-	gamma_isopass[gamma_size] |= 1 << 0;
+	gamma_isopass[gamma_size] |= 1 << 2;
       
       if(gamma_reliso[gamma_size] < 0.2)
 	 gamma_isopass[gamma_size] |= 1 << 1;
       
       if(gamma_reliso[gamma_size] < 0.3)
-	gamma_isopass[gamma_size] |= 1 << 2;
+	gamma_isopass[gamma_size] |= 1 << 0;
       
-      if(gamma_reliso[gamma_size] < 0.4)
-	gamma_isopass[gamma_size] |= 1 << 3;
+      //if(gamma_reliso[gamma_size] < 0.4)
+	//gamma_isopass[gamma_size] |= 1 << 3;
       
       gamma_size++;
       if(gamma_size>kMaxPhoton) break;
@@ -755,16 +755,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       elec_idpass[elec_size] |= 1 << 2;  
     
     if(elec_reliso[elec_size] < 0.1)
-      elec_isopass[elec_size] |= 1 << 0;
+      elec_isopass[elec_size] |= 1 << 2;
     
     if(elec_reliso[elec_size] < 0.2)
       elec_isopass[elec_size] |= 1 << 1;
     
     if(elec_reliso[elec_size] < 0.3)
-      elec_isopass[elec_size] |= 1 << 2;
+      elec_isopass[elec_size] |= 1 << 0;
     
-    if(elec_reliso[elec_size] < 0.4)
-      elec_isopass[elec_size] |= 1 << 3;
+    //if(elec_reliso[elec_size] < 0.4)
+    //  elec_isopass[elec_size] |= 1 << 3;
     
     elec_size++;
     if(elec_size>kMaxElectron) break;
@@ -826,17 +826,17 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //
       //PFIsoTightmuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoTight);
          
-      if(muon_reliso[muon_size] < 0.1)
-	muon_isopass[muon_size] |= 1 << 0;
+      if(muon_reliso[muon_size] < 0.15)
+	muon_isopass[muon_size] |= 1 << 2;
       
       if(muon_reliso[muon_size] < 0.2)
 	muon_isopass[muon_size] |= 1 << 1;
       
-      if(muon_reliso[muon_size] < 0.3)
-	muon_isopass[muon_size] |= 1 << 2;
+      if(muon_reliso[muon_size] < 0.25)
+	muon_isopass[muon_size] |= 1 << 0;
       
-      if(muon_reliso[muon_size] < 0.4)
-	muon_isopass[muon_size] |= 1 << 3;
+      //if(muon_reliso[muon_size] < 0.4)
+	//muon_isopass[muon_size] |= 1 << 3;
       
       muon_size++;
       if(muon_size>kMaxMuonLoose) break;
@@ -871,13 +871,13 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      
      if(tau_combinediso[tau_size] < 1.2)
-       tau_isopass[tau_size] |= 1 << 0;
+       tau_isopass[tau_size] |= 1 << 2;
      
      if(tau_combinediso[tau_size] < 2.)
        tau_isopass[tau_size] |= 1 << 1;
 
      if(tau_combinediso[tau_size] < 4.)
-	 tau_isopass[tau_size] |= 1 << 2;
+	 tau_isopass[tau_size] |= 1 << 0;
      
      if(tau_combinediso[tau_size] < 5.)
        tau_isopass[tau_size] |= 1 << 3;
