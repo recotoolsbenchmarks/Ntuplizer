@@ -1,9 +1,0 @@
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/Framework"/>
-<use name="DataFormats/HGCRecHit"/>
-<use name="DataFormats/CaloRecHit"/>
-<use name="RecoLocalCalo/HGCalRecAlgos"/>
-<export>
-  <lib name="1"/>
-</export>
