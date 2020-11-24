@@ -215,9 +215,9 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
   genMetToken_(consumes<std::vector<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMet"))),
-  photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
-  elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-  //elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+//photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
+  //elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+//elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
   muonsToken_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -257,7 +257,6 @@ Validator::Validator(const edm::ParameterSet& iConfig):
 	mytree->Branch("pfcand_mass",pfcand_mass, "pfcand_mass[pfcand_size]/F");
 	mytree->Branch("pfcand_t",pfcand_t, "pfcand_t[pfcand_size]/F");
 	mytree->Branch("pfcand_terr",pfcand_terr, "pfcand_terr[pfcand_size]/F");
-
 
       }
 
@@ -394,11 +393,11 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<reco::GenMET>> genMet;
   iEvent.getByToken(genMetToken_, genMet);
 	
-  Handle<std::vector<pat::Photon>> photns;
-  iEvent.getByToken(photnsToken_, photns);
-  
-  Handle<std::vector<pat::Electron>> elecs;
-  iEvent.getByToken(elecsToken_, elecs);
+  //Handle<std::vector<pat::Photon>> photns;
+  //iEvent.getByToken(photnsToken_, photns);
+  //
+  //Handle<std::vector<pat::Electron>> elecs;
+  //iEvent.getByToken(elecsToken_, elecs);
 
   //Handle<std::vector<reco::GsfElectron>> elecs;
   //iEvent.getByToken(elecsToken_, elecs);
@@ -630,6 +629,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        genmet_size++;
       }
 
+
+  /*
   /////////////////////////////
   //Photon information         
   /////////////////////////////                                                                                                
@@ -764,7 +765,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       elec_isopass[elec_size] |= 1 << 0;
     
     //if(elec_reliso[elec_size] < 0.4)
-    //  elec_isopass[elec_size] |= 1 << 3;
+      //elec_isopass[elec_size] |= 1 << 3;
     
     elec_size++;
     if(elec_size>kMaxElectron) break;
@@ -773,7 +774,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout<<elec_size<<std::endl;
   if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
 
- 
+  */
   /////////////////////////////
   // Muon information
   /////////////////////////////
@@ -826,17 +827,17 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //
       //PFIsoTightmuon[muon_size] = muons->at(im).passed(reco::Muon::PFIsoTight);
          
-      if(muon_reliso[muon_size] < 0.15)
+      if(muon_reliso[muon_size] < 0.1)
 	muon_isopass[muon_size] |= 1 << 2;
       
       if(muon_reliso[muon_size] < 0.2)
 	muon_isopass[muon_size] |= 1 << 1;
       
-      if(muon_reliso[muon_size] < 0.25)
+      if(muon_reliso[muon_size] < 0.3)
 	muon_isopass[muon_size] |= 1 << 0;
       
       //if(muon_reliso[muon_size] < 0.4)
-	//muon_isopass[muon_size] |= 1 << 3;
+      //muon_isopass[muon_size] |= 1 << 3;
       
       muon_size++;
       if(muon_size>kMaxMuonLoose) break;
@@ -849,11 +850,14 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Taus info
    /////////////////////////////
    for (size_t it = 0; it < taus->size(); it++) {
-     if (taus->at(it).pt()<15.) continue; 
+     if (taus->at(it).pt()<20.) continue; 
      if (fabs(taus->at(it).eta()) > 3.0) continue;
-     if (taus->at(it).tauID("decayModeFinding")<0) continue;     
-     
-     
+     //if (taus->at(it).tauID("decayModeFinding")<0) continue;     
+     if (!(taus->at(it).tauID("decayModeFindingNewDMs") > 0.5))// require to pass new DM finding algorithm
+       continue;
+     if (!(taus->at(it).decayMode() < 5 || taus->at(it).decayMode() > 7)) // only 1- and 3-prongs
+       continue;
+
      tau_pt[tau_size]          = taus->at(it).pt();
      tau_eta[tau_size]         = taus->at(it).eta();
      tau_phi[tau_size]         = taus->at(it).phi();
@@ -861,6 +865,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tau_charge[tau_size]      = taus->at(it).charge();
      tau_decaymode[tau_size]   = taus->at(it).decayMode();
      tau_chargediso[tau_size]  = taus->at(it).tauID("chargedIsoPtSum");
+     //tau_chargediso[tau_size]  = taus->at(it).tauID("byLooseIsolationMVArun2017v2DBnewDMwLT2017");
      tau_neutraliso[tau_size]  = taus->at(it).tauID("neutralIsoPtSumdR03");
      tau_isopass[tau_size]     = 0;
      
@@ -870,17 +875,27 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 1.);
      
      
-     if(tau_combinediso[tau_size] < 1.2)
-       tau_isopass[tau_size] |= 1 << 2;
-     
-     if(tau_combinediso[tau_size] < 2.)
-       tau_isopass[tau_size] |= 1 << 1;
+     if(fabs(taus->at(it).eta()) > 1.4) 
+       {
+	 if(tau_combinediso[tau_size] < 2.)
+	   tau_isopass[tau_size] |= 1 << 2;
+	 if(tau_combinediso[tau_size] < 4.)
+	   tau_isopass[tau_size] |= 1 << 1;
+	 
+	 if(tau_combinediso[tau_size] < 5.)
+	   tau_isopass[tau_size] |= 1 << 0;
+	 //if(tau_combinediso[tau_size] < 1.2)
+	 //tau_isopass[tau_size] |= 1 << 3;
+	 	 
+       }
+    else
+      if(taus->at(it).tauID("byTightIsolationMVArun2017v2DBnewDMwLT2017"))
+	tau_isopass[tau_size] |= 1 << 2;
+      if(taus->at(it).tauID("byMediumIsolationMVArun2017v2DBnewDMwLT2017"))
+	tau_isopass[tau_size] |= 1 << 1;
+      if(taus->at(it).tauID("byLooseIsolationMVArun2017v2DBnewDMwLT2017"))
+	tau_isopass[tau_size] |= 1 << 0;
 
-     if(tau_combinediso[tau_size] < 4.)
-	 tau_isopass[tau_size] |= 1 << 0;
-     
-     if(tau_combinediso[tau_size] < 5.)
-       tau_isopass[tau_size] |= 1 << 3;
      
      tau_size++;
      if(tau_size>kMaxTau) break; 
