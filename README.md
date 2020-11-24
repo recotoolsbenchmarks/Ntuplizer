@@ -15,14 +15,18 @@ Making a PR
 =====
 
 ```
-cmsrel CMSSW_11_1_0_pre6
-cd CMSSW_11_1_0_pre6/src/
+cmsrel CMSSW_11_2_0_pre7
+cd CMSSW_11_2_0_pre7/src/
 cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
 git cms-merge-topic emilbols:BTV_CMSSW_11_1_X
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
+rm RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
+rm RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
+rm RecoBTag/PerformanceMeasurements/python/TTbarSelection*
+git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
 scram b -j8
 
 mkdir new; cd new
@@ -59,14 +63,18 @@ Code Setup
 ####################################################################################
 ```
 
-cmsrel CMSSW_11_1_0_pre6
-cd CMSSW_11_1_0_pre6/src/
+cmsrel CMSSW_11_2_0_pre7
+cd CMSSW_11_2_0_pre7/src/
 cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
 git cms-merge-topic emilbols:BTV_CMSSW_11_1_X
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
+rm RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
+rm RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
+rm RecoBTag/PerformanceMeasurements/python/TTbarSelection*
+git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
 scram b -j8
 
 mkdir new; cd new

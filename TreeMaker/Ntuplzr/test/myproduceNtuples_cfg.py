@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+from RecoTauTag.RecoTau.tools import runTauIdMVA
+
 options = VarParsing ('python')
 
 #$$
@@ -43,22 +45,17 @@ options.parseArguments()
 process = cms.Process("MyAna", Phase2C9)
 
 # Geometry, GT, and other standard sequences
-#$$ process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D52Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun4_realistic_v3', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
+process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
+
 
 # Log settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -79,17 +76,8 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
-options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/110X_mcRun4_realistic_v3_2026D49noPU-v1/20000/683F4232-8801-E045-AC3D-4E6550059D96.root']
-#options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre6/RelValTTbar_14TeV/MINIAODSIM/111X_mcRun3_2021_realistic_v3-v1/20000/DAF5417B-BAE7-B843-A47F-8C728774661F.root']
-#options.inputFiles = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D52PU200_ext1-v1/20000/DDF640CE-0514-3143-A1EC-27DA32BA2047.root']
-#options.inputFiles = '/store/mc/PhaseIITDRSpring19MiniAOD/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/B155F8E9-1F3C-A741-8E86-5BEABD3AFC13.root'
-#options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/863B8ABC-8FBA-0742-8092-71B024307821.root',
-#                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/91644A10-3DBF-9249-8D98-70061BC075E9.root',
-#                      '/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_EWK_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/110000/A885BB63-20F8-5E41-A0E5-3BE38BA5B0BF.root']
+options.inputFiles = ['file:input.root']
 
-#options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/WpWpJJ_QCD_TuneCP5_14TeV-madgraph-pythia8/MINIAODSIM/PU200_106X_upgrade2023_realistic_v3-v2/250000/1BDEBB5D-01C8-6645-8F72-082549F9DD9B.root']
-#options.inputFiles = ['/store/mc/PhaseIITDRSpring19MiniAOD/PhotonFlatPt8To150/MINIAODSIM/NoPU_106X_upgrade2023_realistic_v3-v1/230000/E8D9CEB8-64AC-C641-9E59-C488B6BE706F.root']
-#options.inputFiles = ['/store/relval/CMSSW_10_6_0_patch2/RelValTTbar_14TeV/MINIAODSIM/PU25ns_106X_upgrade2023_realistic_v3_2023D41PU200-v1/10000/FFF6B0DE-6A3A-D04C-9A77-C195F92F8577.root']
 #options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
 
 
@@ -107,7 +95,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *")
 
 # HGCAL EGamma ID
-process.load("RecoEgamma.Phase2InterimID.phase2EgammaPAT_cff")
+#process.load("RecoEgamma.Phase2InterimID.phase2EgammaPAT_cff")
 #process.load("RecoEgamma.Phase2InterimID.phase2EgammaRECO_cff")
 # analysis
 moduleName = options.Analyzr  
@@ -168,7 +156,12 @@ if options.rerunBtag:
     process.myana.jetschs = cms.InputTag(patJetSource)
 
 
-    
+tauIdEmbedder = runTauIdMVA.TauIDEmbedder(
+    process, cms, updatedTauName = "slimmedTausNewID",
+    toKeep = ["2017v2", "newDM2017v2", "newDMPhase2v1", "deepTau2017v2p1",  "againstEle2018", "againstElePhase2v1"]
+)
+tauIdEmbedder.runTauID()
+tauSrc_InputTag = cms.InputTag('slimmedTausNewID')# to be taken for any n-tuplizer
 
 for key in options._register.keys():
     print "{:<20} : {}".format(key, getattr(options, key))
@@ -189,22 +182,25 @@ for mod in process.filters_().itervalues():
 #$$
 
 # run
+#process.out = cms.OutputModule("PoolOutputModule",
+#                               fileName = cms.untracked.string("output.root"),
+#                               outputCommands = cms.untracked.vstring("drop *", "keep *_slimmedTausNewID_*_*"))    
 #process.check  = cms.OutputModule("PoolOutputModule",
 #                               compressionAlgorithm = cms.untracked.string('LZMA'),
 #                               compressionLevel = cms.untracked.int32(4),
 #                               eventAutoFlushCompressedSize = cms.untracked.int32(15728640),
-#                               #dataset = cms.untracked.PSet(                                                                                                              #                                  #dataTier = cms.untracked.string('AODSIM'),                                                                                              #                                  #filterName = cms.untracked.string('')                                                                                                   #                               #),                                                                                                                                         #                               fileName = cms.untracked.string("out.root"),
-#                               #SelectEvents = cms.untracked.PSet(                                                                                                         #                               #               SelectEvents = cms.vstring("p")                                                                                             #                               #               )                                                                                                                           #                               )
+#                               dataset = cms.untracked.PSet(                                                                                                                                                #dataTier = cms.untracked.string('AODSIM'),                                                                                                                      #filterName = cms.untracked.string('')                                                                                                                                  #),
+#                               fileName = cms.untracked.string("out.root"),
+#                               SelectEvents = cms.untracked.PSet(                                                                                              
+#                                                 SelectEvents = cms.vstring("p")                                                                                #                                            ) 
+#                              )
 #
 
 
 #$$
-# process.p = cms.Path(process.phase2Egamma*process.myana)
-process.p = cms.Path(process.phase2Egamma*process.myana, process.tsk)
-#process.p = cms.Path(process.myana, process.tsk)
-#process.e = cms.EndPath(process.check)
-#process.p = cms.Path(process.myana)
-#$$
+
+process.p = cms.Path(process.rerunMvaIsolationSequence*process.slimmedTausNewID*process.myana, process.tsk)
+#process.e = cms.EndPath(process.out)#process.check)
 
 #open('ntupleFileDump.py','w').write(process.dumpPython())
 
