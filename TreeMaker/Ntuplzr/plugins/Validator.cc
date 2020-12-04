@@ -875,7 +875,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        tau_combinediso[tau_size]      = tau_chargediso[tau_size] + 0.2*max(0.,tau_neutraliso[tau_size] - 1.);
      
      
-     if(fabs(taus->at(it).eta()) > 1.4) 
+     /*if(fabs(taus->at(it).eta()) > 1.4) 
        {
 	 if(tau_combinediso[tau_size] < 2.)
 	   tau_isopass[tau_size] |= 1 << 2;
@@ -889,6 +889,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 	 
        }
     else
+     {*/
       if(taus->at(it).tauID("byTightIsolationMVArun2017v2DBnewDMwLT2017"))
 	tau_isopass[tau_size] |= 1 << 2;
       if(taus->at(it).tauID("byMediumIsolationMVArun2017v2DBnewDMwLT2017"))
@@ -896,7 +897,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(taus->at(it).tauID("byLooseIsolationMVArun2017v2DBnewDMwLT2017"))
 	tau_isopass[tau_size] |= 1 << 0;
 
-     
+      // }     
      tau_size++;
      if(tau_size>kMaxTau) break; 
    }
@@ -952,13 +953,13 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        float DeepJETlepb = (float) jets->at(ij).bDiscriminator("pfDeepFlavourJetTags:problepb");
        jetpuppi_DeepJET[jetpuppi_size]  = (DeepJETb > -5) ? DeepJETb + DeepJETbb + DeepJETlepb : -10;
              
-       if(jetpuppi_DeepJET[jetpuppi_size] > 0.054 )
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.125 )
 	 jetpuppi_btag[jetpuppi_size] |= 1 << 0; 
 
-       if(jetpuppi_DeepJET[jetpuppi_size] > 0.283 )
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.563 )
 	 jetpuppi_btag[jetpuppi_size] |= 1 << 1; 
 
-       if(jetpuppi_DeepJET[jetpuppi_size] > 0.668 )
+       if(jetpuppi_DeepJET[jetpuppi_size] > 0.902 )
 	 jetpuppi_btag[jetpuppi_size] |= 1 << 2; 
        
        if(debug_)
