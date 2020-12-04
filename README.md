@@ -21,13 +21,15 @@ cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
-git cms-merge-topic emilbols:BTV_CMSSW_11_1_X
+git cms-addpkg DataFormats/PatCandidates
+git cms-addpkg DataFormats/BTauReco
+git cms-merge-topic --strategy-option theirs mneukum:CMSSW_11_2_0_pre6_pv3d_nov30
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
-rm RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
-rm RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
-rm RecoBTag/PerformanceMeasurements/python/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
 git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
-scram b -j8
+scram b -j10
 
 mkdir new; cd new
 
@@ -43,7 +45,7 @@ git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
-scram b -j 8
+scram b -j10
 cd TreeMaker/Ntuplzr/
 git remote add upstream git@github.com:recotoolsbenchmarks/RecoNtuplizer.git
 ```
@@ -69,20 +71,22 @@ cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
-git cms-merge-topic emilbols:BTV_CMSSW_11_1_X
+git cms-addpkg DataFormats/PatCandidates
+git cms-addpkg DataFormats/BTauReco
+git cms-merge-topic --strategy-option theirs mneukum:CMSSW_11_2_0_pre6_pv3d_nov30
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
-rm RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
-rm RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
-rm RecoBTag/PerformanceMeasurements/python/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
+rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
 git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
-scram b -j8
+scram b -j10
 
 mkdir new; cd new
 git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
-scram b -j 8
+scram b -j 10
 cd TreeMaker/Ntuplzr/
 ```
 ####################################################################################
