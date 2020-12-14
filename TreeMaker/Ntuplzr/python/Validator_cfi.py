@@ -18,6 +18,7 @@ myana = cms.EDAnalyzer('Validator',
                        taus           = cms.InputTag("slimmedTausNewID"),
                        jets           = cms.InputTag("slimmedJetsPuppi"),
                        jetschs        = cms.InputTag("slimmedJets"),
+                       fatjets        = cms.InputTag("slimmedJetsAK8"),
                        met            = cms.InputTag("slimmedMETsPuppi"),
                        metpf          = cms.InputTag("slimmedMETs"),
 )

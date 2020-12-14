@@ -131,6 +131,7 @@ private:
   edm::EDGetTokenT<std::vector<pat::Tau>>             tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>             jetsToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>             jetschsToken_      ;
+  edm::EDGetTokenT<std::vector<pat::Jet>>             fatjetsToken_      ;
   edm::EDGetTokenT<std::vector<pat::MET>>             metToken_          ;
   edm::EDGetTokenT<std::vector<pat::MET>>             metpfToken_        ;
   //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_       ;
@@ -194,6 +195,13 @@ private:
   float jetchs_DeepJET[kMaxJet];
   uint32_t jetchs_btag[kMaxJet];
 
+  int fatjet_size;
+  float fatjet_pt[kMaxJet], fatjet_eta[kMaxJet], fatjet_phi[kMaxJet], fatjet_mass[kMaxJet];
+  float fatjet_tau1[kMaxJet], fatjet_tau2[kMaxJet], fatjet_tau3[kMaxJet], fatjet_tau4[kMaxJet];
+  float fatjet_msoftdrop[kMaxJet];
+  float fatjet_particleNet_TvsQCD[kMaxJet], fatjet_particleNet_WvsQCD[kMaxJet];
+  float fatjet_particleNetMD_XbbvsQCD[kMaxJet];
+
   int metpuppi_size;
   float metpuppi_pt[kMaxMissingET],metpuppi_phi[kMaxMissingET];
 
@@ -222,6 +230,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
   jetschsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetschs"))),
+  fatjetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("fatjets"))),
   metToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met"))),
   metpfToken_(consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metpf")))
   { 
@@ -346,7 +355,21 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("jetchs_idpass", jetchs_idpass, "jetchs_idpass[jetchs_size]/i");
     mytree->Branch("jetchs_DeepJET",jetchs_DeepJET,"jetchs_DeepJET[jetchs_size]/F");
     mytree->Branch("jetchs_btag",jetchs_btag,"jetchs_btag[jetchs_size]/i");
-    
+
+    mytree->Branch("fatjet_size", &fatjet_size, "fatjet_size/I");
+    mytree->Branch("fatjet_pt", fatjet_pt, "fatjet_pt[fatjet_size]/F");
+    mytree->Branch("fatjet_eta", fatjet_eta, "fatjet_eta[fatjet_size]/F");
+    mytree->Branch("fatjet_phi", fatjet_phi, "fatjet_phi[fatjet_size]/F");
+    mytree->Branch("fatjet_mass", fatjet_mass, "fatjet_mass[fatjet_size]/F");
+    mytree->Branch("fatjet_tau1", fatjet_tau1, "fatjet_tau1[fatjet_size]/F");
+    mytree->Branch("fatjet_tau2", fatjet_tau2, "fatjet_tau2[fatjet_size]/F");
+    mytree->Branch("fatjet_tau3", fatjet_tau3, "fatjet_tau3[fatjet_size]/F");
+    mytree->Branch("fatjet_tau4", fatjet_tau4, "fatjet_tau4[fatjet_size]/F");
+    mytree->Branch("fatjet_msoftdrop", fatjet_msoftdrop, "fatjet_msoftdrop[fatjet_size]/F");
+    mytree->Branch("fatjet_particleNet_TvsQCD", fatjet_particleNet_TvsQCD, "fatjet_particleNet_TvsQCD[fatjet_size]/F");
+    mytree->Branch("fatjet_particleNet_WvsQCD", fatjet_particleNet_WvsQCD, "fatjet_particleNet_WvsQCD[fatjet_size]/F");
+    mytree->Branch("fatjet_particleNetMD_XbbvsQCD", fatjet_particleNetMD_XbbvsQCD, "fatjet_particleNetMD_XbbvsQCD[fatjet_size]/F");
+
     mytree->Branch("metpuppi_size",&metpuppi_size, "metpuppi_size/I");
     mytree->Branch("metpuppi_pt", metpuppi_pt, "metpuppi_pt[metpuppi_size]/F");
     mytree->Branch("metpuppi_phi",metpuppi_phi, "metpuppi_phi[metpuppi_size]/F");
@@ -414,6 +437,9 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<pat::Jet>> jetschs;
   iEvent.getByToken(jetschsToken_, jetschs);
 
+  Handle<std::vector<pat::Jet>> fatjets;
+  iEvent.getByToken(fatjetsToken_, fatjets);
+
   Handle<std::vector<pat::MET>> met;
   iEvent.getByToken(metToken_, met);
 
@@ -435,6 +461,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   elec_size        = 0;
   jetpuppi_size    = 0;
   jetchs_size      = 0;
+  fatjet_size      = 0;
   muon_size        = 0;
   metpuppi_size    = 0;
   metpf_size       = 0;
@@ -1032,7 +1059,46 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(jetchs_size>kMaxJet) break;
      }
    if(debug_)   std::cout<<"Here I am : got jetchs infor right "<<std::endl;
-   
+
+
+   /////////////////////////////
+   //FatJet information
+   /////////////////////////////
+   if (debug_)
+   {
+     std::cout << "AK8 jets info:" << std::endl;
+     std::cout << " jet pt, eta, phi, mass:" << std::endl;
+   }
+   for (size_t ij = 0; ij < fatjets->size(); ij++)
+   {
+     const auto &fj = fatjets->at(ij);
+     if (fj.pt() < 170)
+       continue;
+
+     fatjet_pt[fatjet_size] = fj.pt();
+     fatjet_eta[fatjet_size] = fj.eta();
+     fatjet_phi[fatjet_size] = fj.phi();
+     fatjet_mass[fatjet_size] = fj.mass();
+     fatjet_tau1[fatjet_size] = fj.userFloat("NjettinessAK8Puppi:tau1");
+     fatjet_tau2[fatjet_size] = fj.userFloat("NjettinessAK8Puppi:tau2");
+     fatjet_tau3[fatjet_size] = fj.userFloat("NjettinessAK8Puppi:tau3");
+     fatjet_tau4[fatjet_size] = fj.userFloat("NjettinessAK8Puppi:tau4");
+     fatjet_msoftdrop[fatjet_size] = fj.groomedMass("SoftDropPuppi");
+     fatjet_particleNet_TvsQCD[fatjet_size] = fj.bDiscriminator("pfParticleNetDiscriminatorsJetTags:TvsQCD");
+     fatjet_particleNet_WvsQCD[fatjet_size] = fj.bDiscriminator("pfParticleNetDiscriminatorsJetTags:WvsQCD");
+     fatjet_particleNetMD_XbbvsQCD[fatjet_size] = fj.bDiscriminator("pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XbbvsQCD");
+
+     if (debug_)
+     {
+       std::cout << fatjet_pt[fatjet_size] << "," << fatjet_eta[fatjet_size] << "," << fatjet_phi[fatjet_size] << "," << fatjet_mass[fatjet_size] << std::endl;
+     }
+     fatjet_size++;
+     if (fatjet_size > kMaxJet)
+       break;
+   }
+   if (debug_)
+     std::cout << "Here I am : got fatjet infor right " << std::endl;
+
 
    /////////////////////////////
    //Met information
