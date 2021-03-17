@@ -30,12 +30,12 @@ mkdir new; cd new
 ```
 If you do not attempt to contribute to this repository, simply clone it:
 ```
-git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone -b 11_0_X https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 ```
 
 If you aim at contributing to the repository, you need to fork this repository (via the fork button) and then clone the forked repository:
 ```
-git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
+git clone -b 11_0_X git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
@@ -70,7 +70,7 @@ git cms-merge-topic emilbols:BTV_11_0_X
 git clone -b Phase2_11_0_X_v1.02 --depth 1 https://github.com/cms-btv-pog/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
 
 mkdir new; cd new
-git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone -b 11_0_X https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
