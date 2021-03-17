@@ -1,11 +1,13 @@
 # PhaseIIAnalysis 
 # Repository for collecting recipes for standard physics objects and for analysis of simulated events with the CMS phase 2 detector
 
+This branch to be used only for btagging and taus parameterization.
+
 The recipes for accessing PhaseII objects are summarized here:
 
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
-This branch to be used only for btagging and taus parameterization.
+
 
 Table of contents
 =================
@@ -37,12 +39,12 @@ mkdir new; cd new
 ```
 If you do not attempt to contribute to this repository, simply clone it:
 ```
-git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone -b 11_2_X_snowmass https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 ```
 
 If you aim at contributing to the repository, you need to fork this repository (via the fork button) and then clone the forked repository:
 ```
-git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
+git clone -b 11_2_X_snowmass git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
@@ -82,7 +84,7 @@ rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
 scram b -j10
 
 mkdir new; cd new
-git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone -b 11_2_X_snowmass https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
