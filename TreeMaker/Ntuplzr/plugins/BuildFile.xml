@@ -32,7 +32,6 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/Math"/>
 
-<use name="RecoEgamma/Phase2InterimID"/>
 <use name="Geometry/GEMGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/GeneratorProducts"/>
