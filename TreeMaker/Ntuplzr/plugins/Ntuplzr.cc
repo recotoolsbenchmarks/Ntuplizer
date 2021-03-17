@@ -33,7 +33,7 @@
  #include "DataFormats/PatCandidates/interface/Muon.h"
  #include "DataFormats/MuonReco/interface/MuonSelectors.h"
  #include "DataFormats/PatCandidates/interface/Electron.h"
- #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+//#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
  #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
  #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -1002,7 +1002,7 @@ float Ntuplzr::calculate_demetraIsolation(const pat::Tau& tau)const{
     pat::PackedCandidate const* cand = dynamic_cast<pat::PackedCandidate const*>(IsoCand.get());
     if (! cand->charge() )continue;
     //WATCH OUT WHICH VERTICES THESE ARE
-    /*if(!vertices())continue;
+    if(!vertices())continue;
     const auto& tau_vertex = (*vertices())[tau_vertex_idxpf];
     
     if ((cand->pt()<=0.8) || (fabs(cand->dxy(tau_vertex.position()))>=0.05))continue;

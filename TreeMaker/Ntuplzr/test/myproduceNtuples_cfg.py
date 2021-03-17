@@ -45,23 +45,34 @@ options.parseArguments()
 process = cms.Process("MyAna", Phase2C9)
 
 # Geometry, GT, and other standard sequences
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
+#process.GlobalTag.globaltag = "auto:phase2_realistic_T15"
 
+#process.load('Configuration.StandardSequences.RawToDigi_cff')
+#process.load('Configuration.StandardSequences.L1Reco_cff')
+#process.load('Configuration.StandardSequences.Reconstruction_cff')
+#process.load('Configuration.StandardSequences.RecoSim_cff')
+#process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T15", "")
 
 # Log settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('MyAna')
+#process.MessageLogger.categories.append('MyAna')
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
 )
@@ -76,12 +87,11 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
-options.inputFiles = ['file:input.root']
+#options.inputFiles = ['file:input.root']
+#options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_2_0/src/step3_inMINIAODSIM.root']
+options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_3_0_pre4/src/step3.root']
 
-#options.secondaryInputFiles = '/store/mc/PhaseIITDRSpring19DR/QCD_Pt_120to170_TuneCP5_14TeV_pythia8/AODSIM/NoPU_106X_upgrade2023_realistic_v3-v2/130000/773F8021-12B1-7E4B-9B0B-F0C188EC63B8.root'
-
-
-
+#options.secondaryInputFiles = ''
 #options.inputFiles = ['/store/relval/CMSSW_11_0_0_pre13/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/20000/5E63BB51-0E53-104E-9ED4-7B2D73B5C930.root']
 
 
@@ -163,6 +173,14 @@ tauIdEmbedder = runTauIdMVA.TauIDEmbedder(
 tauIdEmbedder.runTauID()
 tauSrc_InputTag = cms.InputTag('slimmedTausNewID')# to be taken for any n-tuplizer
 
+# EB photon ID
+#from MyTools.EDProducers.photonIDProducerEB_cfi import *
+#process.photonPhaseIImvaIdEB = photonMVAIDProducerEB.clone(
+#    debug = False,
+#)
+#process.photonID_seq = cms.Sequence(process.photonPhaseIImvaIdEB)
+
+
 for key in options._register.keys():
     print "{:<20} : {}".format(key, getattr(options, key))
 
@@ -199,6 +217,7 @@ for mod in process.filters_().itervalues():
 
 #$$
 
+#process.p = cms.Path(process.photonID_seq*process.rerunMvaIsolationSequence*process.slimmedTausNewID*process.myana, process.tsk)
 process.p = cms.Path(process.rerunMvaIsolationSequence*process.slimmedTausNewID*process.myana, process.tsk)
 #process.e = cms.EndPath(process.out)#process.check)
 

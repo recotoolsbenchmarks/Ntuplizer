@@ -5,6 +5,8 @@ The recipes for accessing PhaseII objects are summarized here:
 
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
+This is to be used for egamma and jets parameterization in 11_3_X.
+
 Table of contents
 =================
 
@@ -15,21 +17,14 @@ Making a PR
 =====
 
 ```
-cmsrel CMSSW_11_2_0_pre10
-cd CMSSW_11_2_0_pre10/src/
+cmsrel CMSSW_11_3_0_pre4
+cd CMSSW_11_3_0_pre4/src/
 cmsenv
-setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
-git cms-init
-git cms-addpkg RecoBTag
-git cms-addpkg DataFormats/PatCandidates
-git cms-addpkg DataFormats/BTauReco
-git cms-merge-topic mneukum:CMSSW_11_2_0_pre7_PhaseII_mar21
-git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
-rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
-rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
-rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
+git cms-merge-topic SohamBhattacharya:PhaseII_forRTB_11_3_0_pre4
 scram b -j10
 
+setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
+git cms-init
 mkdir new; cd new
 
 ```
@@ -63,21 +58,14 @@ Code Setup
 
 ####################################################################################
 ```
-
-cmsrel CMSSW_11_2_0_pre10
-cd CMSSW_11_2_0_pre10/src/
+cmsrel CMSSW_11_3_0_pre4
+cd CMSSW_11_3_0_pre4/src/
 cmsenv
+git cms-merge-topic SohamBhattacharya:PhaseII_forRTB_11_3_0_pre4
+scram b -j10
+
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
-git cms-addpkg RecoBTag
-git cms-addpkg DataFormats/PatCandidates
-git cms-addpkg DataFormats/BTauReco
-git cms-merge-topic mneukum:CMSSW_11_2_0_pre7_PhaseII_mar21
-git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
-rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
-rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
-rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
-scram b -j10
 
 mkdir new; cd new
 git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .

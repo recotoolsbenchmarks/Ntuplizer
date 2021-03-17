@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    TreeMaker/Ntuplzr
@@ -33,7 +34,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+//#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -124,9 +125,16 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenParticle>>    genPartsToken_     ;
   edm::EDGetTokenT<std::vector<reco::GenJet>>         genJetsToken_      ;
   edm::EDGetTokenT<std::vector<reco::GenMET>>         genMetToken_       ;
-  edm::EDGetTokenT<std::vector<pat::Photon>>          photnsToken_       ; 
-  edm::EDGetTokenT<std::vector<pat::Electron>>        elecsToken_        ;
-  //edm::EDGetTokenT<std::vector<reco::GsfElectron>>  elecsToken_  ;
+  edm::EDGetTokenT<std::vector<pat::Photon>>          photnsEBToken_     ; 
+  edm::EDGetTokenT<std::vector<reco::Photon>>         photnsEEToken_     ; 
+  edm::EDGetTokenT<std::vector<double>>               photnsEBmvaToken_  ;
+  edm::EDGetTokenT<std::vector<double>>               photnsEEmvaToken_  ;
+  edm::EDGetTokenT<std::vector<pat::Electron>>        elecsEBToken_      ;
+  edm::EDGetTokenT<std::vector<reco::GsfElectron>>    elecsEEToken_      ;
+  edm::EDGetTokenT<std::vector<bool>>                 elecsEBLooseToken_   ;
+  edm::EDGetTokenT<std::vector<bool>>                 elecsEBMediumToken_  ;
+  edm::EDGetTokenT<std::vector<bool>>                 elecsEBTightToken_   ;
+  edm::EDGetTokenT<std::vector<double>>               elecsEEmvaToken_   ;
   edm::EDGetTokenT<std::vector<pat::Muon>>            muonsToken_        ;
   edm::EDGetTokenT<std::vector<pat::Tau>>             tausToken_         ;
   edm::EDGetTokenT<std::vector<pat::Jet>>             jetsToken_         ;
@@ -134,6 +142,7 @@ private:
   edm::EDGetTokenT<std::vector<pat::Jet>>             fatjetsToken_      ;
   edm::EDGetTokenT<std::vector<pat::MET>>             metToken_          ;
   edm::EDGetTokenT<std::vector<pat::MET>>             metpfToken_        ;
+  edm::EDGetTokenT<std::vector<double>>               elec_EEmvaToken_ ;
   //edm::EDGetTokenT<std::vector<reco::Conversion>>  convToken_       ;
   
   const ME0Geometry*      ME0Geometry_;
@@ -168,11 +177,11 @@ private:
   float genmet_pt[kMaxMissingET],genmet_phi[kMaxMissingET];
   
   int gamma_size;
-  float MVAgamma_[kMaxPhoton],gamma_pt[kMaxPhoton], gamma_eta[kMaxPhoton], gamma_phi[kMaxPhoton],gamma_mass[kMaxPhoton],gamma_reliso[kMaxPhoton], gamma_idvar[kMaxPhoton];
+  float MVAgamma_[kMaxPhoton],gamma_pt[kMaxPhoton], gamma_eta[kMaxPhoton], gamma_phi[kMaxPhoton],gamma_mass[kMaxPhoton],gamma_reliso[kMaxPhoton], gamma_idvar[kMaxPhoton], gamma_mvaEB[kMaxPhoton];
   uint32_t gamma_isopass[kMaxPhoton], gamma_idpass[kMaxPhoton];
   
   int elec_size, elec_charge[kMaxElectron];
-  float elec_pt[kMaxElectron], elec_eta[kMaxElectron], elec_phi[kMaxElectron], elec_reliso[kMaxElectron], elec_mass[kMaxElectron], elec_idvar[kMaxElectron];
+  float elec_pt[kMaxElectron], elec_eta[kMaxElectron], elec_phi[kMaxElectron], elec_reliso[kMaxElectron], elec_mass[kMaxElectron], elec_idvar[kMaxElectron], elec_HGCalElectronRvar_[kMaxElectron];
   uint32_t elec_isopass[kMaxElectron],elec_idpass[kMaxElectron];
   
   int muon_size, muon_charge[kMaxMuonLoose];
@@ -223,9 +232,16 @@ Validator::Validator(const edm::ParameterSet& iConfig):
   genPartsToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParts"))),
   genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJets"))),
   genMetToken_(consumes<std::vector<reco::GenMET>>(iConfig.getParameter<edm::InputTag>("genMet"))),
-//photnsToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
-  //elecsToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-//elecsToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+  photnsEBToken_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("photonsEB"))),
+  photnsEEToken_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("photonsEE"))),
+  photnsEBmvaToken_(consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("photons_EBmva"))),
+  photnsEEmvaToken_(consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("photons_EEmva"))),
+  elecsEBToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electronsEB"))),
+  elecsEEToken_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electronsEE"))),
+  elecsEBLooseToken_(consumes<std::vector<bool>>(iConfig.getParameter<edm::InputTag>("electrons_EBLoose"))),
+  elecsEBMediumToken_(consumes<std::vector<bool>>(iConfig.getParameter<edm::InputTag>("electrons_EBMedium"))),
+  elecsEBTightToken_(consumes<std::vector<bool>>(iConfig.getParameter<edm::InputTag>("electrons_EBTight"))),
+  elecsEEmvaToken_(consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("electrons_EEmva"))),
   muonsToken_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   tausToken_(consumes<std::vector<pat::Tau>>(iConfig.getParameter<edm::InputTag>("taus"))),
   jetsToken_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -301,6 +317,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("gamma_mass",gamma_mass, "gamma_mass[gamma_size]/F");
     mytree->Branch("gamma_idvar", gamma_idvar, "gamma_idvar[gamma_size]/F");
     mytree->Branch("gamma_reliso",gamma_reliso, "gamma_reliso[gamma_size]/F");
+    mytree->Branch("gamma_mvaEB",gamma_mvaEB, "gamma_mvaEB[gamma_size]/F");
     mytree->Branch("gamma_idpass", gamma_idpass, "gamma_idpass[gamma_size]/i");
     mytree->Branch("gamma_isopass", gamma_isopass, "gamma_isopass[gamma_size]/i");
     
@@ -314,6 +331,7 @@ Validator::Validator(const edm::ParameterSet& iConfig):
     mytree->Branch("elec_reliso",elec_reliso, "elec_reliso[elec_size]/F");
     mytree->Branch("elec_idpass",elec_idpass, "elec_idpass[elec_size]/i");
     mytree->Branch("elec_isopass", elec_isopass, "elec_isopass[elec_size]/i");
+    mytree->Branch("elec_HGCalElectronRvar_", elec_HGCalElectronRvar_, "elec_HGCalElectronRvar_[elec_size]/F");
     
     mytree->Branch("muon_size",&muon_size, "muon_size/I");
     mytree->Branch("muon_pt",muon_pt, "muon_pt[muon_size]/F");
@@ -416,14 +434,33 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<reco::GenMET>> genMet;
   iEvent.getByToken(genMetToken_, genMet);
 	
-  //Handle<std::vector<pat::Photon>> photns;
-  //iEvent.getByToken(photnsToken_, photns);
-  //
-  //Handle<std::vector<pat::Electron>> elecs;
-  //iEvent.getByToken(elecsToken_, elecs);
+  Handle<std::vector<pat::Photon>> photnsEB;
+  iEvent.getByToken(photnsEBToken_, photnsEB);
 
-  //Handle<std::vector<reco::GsfElectron>> elecs;
-  //iEvent.getByToken(elecsToken_, elecs);
+  Handle<std::vector<reco::Photon>> photnsEE;
+  iEvent.getByToken(photnsEEToken_, photnsEE);
+
+  Handle<std::vector<double>> photnsEBmva; 
+  iEvent.getByToken(photnsEBmvaToken_, photnsEBmva);
+
+  Handle<std::vector<double>> photnsEEmva; 
+  iEvent.getByToken(photnsEEmvaToken_, photnsEEmva);
+ 
+  Handle<std::vector<pat::Electron>> elecsEB;
+  iEvent.getByToken(elecsEBToken_, elecsEB);
+
+  Handle<std::vector<reco::GsfElectron>> elecsEE;
+  iEvent.getByToken(elecsEEToken_, elecsEE);
+
+  Handle<std::vector<bool>> elecsEBLoose;
+  iEvent.getByToken(elecsEBLooseToken_, elecsEBLoose);
+  Handle<std::vector<bool>> elecsEBMedium;
+  iEvent.getByToken(elecsEBMediumToken_, elecsEBMedium);
+  Handle<std::vector<bool>> elecsEBTight;
+  iEvent.getByToken(elecsEBTightToken_, elecsEBTight);
+
+  Handle<std::vector<double>> elecsEEmva;
+  iEvent.getByToken(elecsEEmvaToken_, elecsEEmva);
 
   Handle<std::vector<pat::Muon>> muons;
   iEvent.getByToken(muonsToken_, muons);
@@ -475,7 +512,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   /////////////////////////////
   //////vertices info//////
   /////////////////////////////
-
+  
   int prVtx = -1;
   for (size_t i = 0; i < vertices->size(); i++) {
     if (vertices->at(i).isFake()) continue;
@@ -490,7 +527,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(debug_)  std::cout<<"vertex info:"<< vtx_x[vtx_size]<< "," << vtx_y[vtx_size]<<","<< vtx_z[vtx_size]<<std::endl;
     vtx_size++;
   }
-  if (prVtx < 0) return;
+  //if (prVtx < 0) return;
   if(debug_)  std::cout<<"Here I am : got vertex infor right "<<std::endl;
 
   /////////////////////////////
@@ -516,7 +553,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	vtx4D_size++;
       }
 
-      if (prVtx < 0) return;
+      //if (prVtx < 0) return;
       if(debug_)  std::cout<<"Here I am : got 4D vertex infor right "<<std::endl;
       for (size_t i = 0; i < pfCandids->size(); i++) {
 	pfcand_pid[pfcand_size]       = pfCandids->at(i).pdgId();
@@ -657,39 +694,71 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
 
 
-  /*
+  
   /////////////////////////////
-  //Photon information         
+  //Barrel Photon information         
   /////////////////////////////                                                                                                
-  for(size_t ip= 0 ; ip < photns->size(); ip++)
+  for(size_t ip= 0 ; ip < photnsEB->size(); ip++)
     {
-      if(photns->at(ip).pt() < 10.) continue;
-      if(fabs(photns->at(ip).eta()) > 3.) continue;
-      float mvaValue = photns->at(ip).userFloat("mvaValue");
-      bool isEB = photns->at(ip).isEB();
-      bool isLoose(0), isMedium(0), isTight(0);
-      
-      if( isEB )
-	{
-	  isLoose  = (mvaValue > 0.00);
-	  isMedium = (mvaValue > 0.2); 
-	  isTight  = (mvaValue > 0.56);
-	}     
-      else
-	{
-	  isLoose = (mvaValue > 0.20);
-	  isMedium = (mvaValue > 0.4); 
-	  isTight = (mvaValue > 0.68);
-	}          
-      
-      gamma_pt[gamma_size]        = photns->at(ip).pt();
-      gamma_eta[gamma_size]       = photns->at(ip).eta();
-      gamma_phi[gamma_size]       = photns->at(ip).phi();
-      gamma_mass[gamma_size]      = photns->at(ip).mass();
-      gamma_idvar[gamma_size]     = mvaValue; // MVA
-      gamma_reliso[gamma_size]    = (photns->at(ip).puppiChargedHadronIso() + photns->at(ip).puppiNeutralHadronIso() + photns->at(ip).puppiPhotonIso()) / photns->at(ip).pt();
+      if(photnsEB->at(ip).pt() < 10.) continue;
+      if(photnsEB->at(ip).isEE()) continue;
+      float mvaValueEB = photnsEBmva->at(ip);
+      bool isLoose(1), isMedium(1), isTight(1);
+      gamma_pt[gamma_size]        = photnsEB->at(ip).pt();
+      gamma_eta[gamma_size]       = photnsEB->at(ip).eta();
+      gamma_phi[gamma_size]       = photnsEB->at(ip).phi();
+      gamma_mass[gamma_size]      = photnsEB->at(ip).mass();
+      gamma_idvar[gamma_size]     = mvaValueEB; // MVA
+      gamma_reliso[gamma_size]    = 0. ;//(photns->at(ip).puppiChargedHadronIso() + photns->at(ip).puppiNeutralHadronIso() + photns->at(ip).puppiPhotonIso()) / photns->at(ip).pt();
       gamma_idpass[gamma_size]    = 0;
       gamma_isopass[gamma_size]   = 0;
+      isLoose  = (mvaValueEB > 0.737502);
+      isMedium = (mvaValueEB > 0.875003); 
+      isTight  = (mvaValueEB > 0.937503);
+      if(isLoose)
+	gamma_idpass[gamma_size] |= 1 << 0;
+      
+      if(isMedium)
+	gamma_idpass[gamma_size] |= 1 << 1;
+      
+      if(isTight)
+	gamma_idpass[gamma_size] |= 1 << 2;
+      /*
+	    if(gamma_reliso[gamma_size] < 0.1)
+	     gamma_isopass[gamma_size] |= 1 << 2;
+	    
+	    if(gamma_reliso[gamma_size] < 0.2)
+	     gamma_isopass[gamma_size] |= 1 << 1;
+	  
+	    if(gamma_reliso[gamma_size] < 0.3)
+	     gamma_isopass[gamma_size] |= 1 << 0;
+	  */
+      gamma_size++;
+      if(gamma_size>kMaxPhoton) break;
+      
+    }
+  if(debug_)   std::cout<<"Here I am : got pho EB infor right "<<std::endl;
+  
+  /////////////////////////////
+  //Endcap Photon information         
+  /////////////////////////////                                                                                                
+  for(size_t ip= 0 ; ip < photnsEE->size(); ip++)
+    {
+      if(photnsEE->at(ip).pt() < 10.) continue;
+      if(photnsEE->at(ip).isEB()) continue;
+      float mvaValueEE = photnsEEmva->at(ip);
+      bool isLoose(1), isMedium(1), isTight(1);
+      gamma_pt[gamma_size]        = photnsEE->at(ip).pt();
+      gamma_eta[gamma_size]       = photnsEE->at(ip).eta();
+      gamma_phi[gamma_size]       = photnsEE->at(ip).phi();
+      gamma_mass[gamma_size]      = photnsEE->at(ip).mass();
+      gamma_idvar[gamma_size]     = mvaValueEE; // MVA
+      gamma_reliso[gamma_size]    = 0. ;//(photns->at(ip).puppiChargedHadronIso() + photns->at(ip).puppiNeutralHadronIso() + photns->at(ip).puppiPhotonIso()) / photns->at(ip).pt();
+      gamma_idpass[gamma_size]    = 0;
+      gamma_isopass[gamma_size]   = 0;
+      isLoose  = (mvaValueEE >  0.060);
+      isMedium = (mvaValueEE >  0.095); 
+      isTight  = (mvaValueEE >  0.117);
       
       if(isLoose)
 	gamma_idpass[gamma_size] |= 1 << 0;
@@ -699,109 +768,117 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if(isTight)
 	gamma_idpass[gamma_size] |= 1 << 2;
-      
-      if(gamma_reliso[gamma_size] < 0.1)
+      /*
+	if(gamma_reliso[gamma_size] < 0.1)
 	gamma_isopass[gamma_size] |= 1 << 2;
-      
-      if(gamma_reliso[gamma_size] < 0.2)
+	
+	if(gamma_reliso[gamma_size] < 0.2)
 	 gamma_isopass[gamma_size] |= 1 << 1;
-      
-      if(gamma_reliso[gamma_size] < 0.3)
+	 
+	 if(gamma_reliso[gamma_size] < 0.3)
 	gamma_isopass[gamma_size] |= 1 << 0;
-      
-      //if(gamma_reliso[gamma_size] < 0.4)
-	//gamma_isopass[gamma_size] |= 1 << 3;
-      
+      */
       gamma_size++;
       if(gamma_size>kMaxPhoton) break;
     }
-  if(debug_)   std::cout<<"Here I am : got pho infor right "<<std::endl;
+  if(debug_)   std::cout<<"Here I am : got pho EE infor right "<<std::endl;
   
   /////////////////////////////
-  //Electron information
+  //Electron barrel information
   /////////////////////////////                       
-  for(size_t ie= 0 ; ie < elecs->size(); ie++)  {
-    if(elecs->at(ie).pt() < 10.) continue;
-    if (fabs(elecs->at(ie).eta()) > 3.) continue;
-    float mvaValue = elecs->at(ie).userFloat("mvaValue");
-    //float mvaValue = 1.;
-    elec_pt[elec_size]               = elecs->at(ie).pt();
-    elec_eta[elec_size]              = elecs->at(ie).eta();
-    elec_phi[elec_size]              = elecs->at(ie).phi();
-    elec_mass[elec_size]             = elecs->at(ie).mass();
-    elec_charge[elec_size]           = elecs->at(ie).charge();
-    elec_idvar[elec_size]            = mvaValue; //MVA
+  for(size_t ie= 0 ; ie < elecsEB->size(); ie++)  {
+    if(elecsEB->at(ie).pt() < 10.) continue;
+    if (elecsEB->at(ie).isEE()) continue;
+    //float mvaValueEB = elecsEBmva->at(ie);
+    float mvaValueEB = 1.;
+    elec_pt[elec_size]               = elecsEB->at(ie).pt();
+    elec_eta[elec_size]              = elecsEB->at(ie).eta();
+    elec_phi[elec_size]              = elecsEB->at(ie).phi();
+    elec_mass[elec_size]             = elecsEB->at(ie).mass();
+    elec_charge[elec_size]           = elecsEB->at(ie).charge();
+    elec_idvar[elec_size]            = mvaValueEB; //MVA
     elec_idpass[elec_size]           = 0;
     elec_isopass[elec_size]          = 0;
-    bool isEB                        = elecs->at(ie).isEB();
-    if(isEB) 
-      elec_reliso[elec_size] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
-    else 
-      elec_reliso[elec_size] = (elecs->at(ie).userFloat("hgcElectronID:caloIsoRing1") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing2") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing3") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing4")) / elecs->at(ie).energy();
-
-    bool isLoose(0), isMedium(0), isTight(0);
+    elec_reliso[elec_size]           = 0.;
+    //if(isEB) 
+    // elec_reliso[elec_size] = (elecs->at(ie).puppiNoLeptonsChargedHadronIso() + elecs->at(ie).puppiNoLeptonsNeutralHadronIso() + elecs->at(ie).puppiNoLeptonsPhotonIso()) / elecs->at(ie).pt();
+    // else 
+    // elec_reliso[elec_size] = (elecs->at(ie).userFloat("hgcElectronID:caloIsoRing1") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing2") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing3") + elecs->at(ie).userFloat("hgcElectronID:caloIsoRing4")) / elecs->at(ie).energy();
     
-    if( isEB ) {
-      if (elecs->at(ie).pt() < 20.) {
-	isLoose  = (mvaValue  > -0.661);
-	isMedium = (mvaValue > 0.885);
-	isTight  = (mvaValue  > 0.986);  	
-      }
-      else {
-	isLoose  = (mvaValue  > -0.797);
-	isMedium = (mvaValue > 0.723);
-	isTight  = (mvaValue  > 0.988);
-      }
-    }
-    else {
-      if (not (elecs->at(ie).userFloat("hgcElectronID:ecEnergy") > 0)) continue;
-      if (not (elecs->at(ie).userFloat("hgcElectronID:sigmaUU") > 0)) continue;
-      if (not (elecs->at(ie).fbrem() > -1)) continue;
-      if (not (elecs->at(ie).userFloat("hgcElectronID:measuredDepth") < 40)) continue;
-      if (not (elecs->at(ie).userFloat("hgcElectronID:nLayers") > 20)) continue;
-      if (elecs->at(ie).pt() < 20.) {
-	isLoose = (mvaValue  > -0.320);
-	isMedium = (mvaValue > 0.777);
-	isTight = (mvaValue  > 0.969);
-      }
-      else {
-	isLoose  = (mvaValue  > -0.919);
-	isMedium = (mvaValue > 0.591);
-	isTight  = (mvaValue  > 0.983);
-      }
-    }
-    
+    bool isLoose(1), isMedium(1), isTight(1);
+    isLoose  = elecsEBLoose->at(ie);
+    isMedium = elecsEBMedium->at(ie);
+    isTight  = elecsEBTight->at(ie);
+  	
     if(isLoose)
-      //{
-	elec_idpass[elec_size] |= 1 << 0;
-	//std::cout<<"loose muon found"<<std::endl;
-    // }
+      elec_idpass[elec_size] |= 1 << 0;
     if(isMedium)
       elec_idpass[elec_size] |= 1 << 1;
-    
     if(isTight)
       elec_idpass[elec_size] |= 1 << 2;  
-    
-    if(elec_reliso[elec_size] < 0.1)
+    /*
+      if(elec_reliso[elec_size] < 0.1)
       elec_isopass[elec_size] |= 1 << 2;
-    
-    if(elec_reliso[elec_size] < 0.2)
+      
+      if(elec_reliso[elec_size] < 0.2)
       elec_isopass[elec_size] |= 1 << 1;
-    
-    if(elec_reliso[elec_size] < 0.3)
+      
+      if(elec_reliso[elec_size] < 0.3)
       elec_isopass[elec_size] |= 1 << 0;
-    
-    //if(elec_reliso[elec_size] < 0.4)
-      //elec_isopass[elec_size] |= 1 << 3;
-    
+    */
     elec_size++;
     if(elec_size>kMaxElectron) break;
   }
   
   //std::cout<<elec_size<<std::endl;
-  if(debug_)   std::cout<<"Here I am : got elec infor right "<<std::endl;
+  if(debug_)   std::cout<<"Here I am : got elec EB infor right "<<std::endl;
 
-  */
+ /////////////////////////////
+  //Electron endcap information
+  /////////////////////////////                       
+  for(size_t ie= 0 ; ie < elecsEE->size(); ie++)  {
+    if(elecsEE->at(ie).pt() < 10.) continue;
+    if (elecsEE->at(ie).isEB()) continue;
+    float mvaValueEE = elecsEEmva->at(ie);
+    //float mvaValueEE = 1.;
+    elec_pt[elec_size]               = elecsEE->at(ie).pt();
+    elec_eta[elec_size]              = elecsEE->at(ie).eta();
+    elec_phi[elec_size]              = elecsEE->at(ie).phi();
+    elec_mass[elec_size]             = elecsEE->at(ie).mass();
+    elec_charge[elec_size]           = elecsEE->at(ie).charge();
+    elec_idvar[elec_size]            = mvaValueEE; //MVA
+    elec_idpass[elec_size]           = 0;
+    elec_isopass[elec_size]          = 0;
+    elec_reliso[elec_size]           = 0.;
+    bool isLoose(1), isMedium(1), isTight(1);
+    isLoose  = (mvaValueEE  > 0.060);
+    isMedium = (mvaValueEE > 0.106);
+    isTight  = (mvaValueEE  > 0.140);  	
+    if(isLoose)
+      elec_idpass[elec_size] |= 1 << 0;
+    if(isMedium)
+      elec_idpass[elec_size] |= 1 << 1;
+    if(isTight)
+      elec_idpass[elec_size] |= 1 << 2;  
+    /*
+      if(elec_reliso[elec_size] < 0.1)
+      elec_isopass[elec_size] |= 1 << 2;
+      
+      if(elec_reliso[elec_size] < 0.2)
+      elec_isopass[elec_size] |= 1 << 1;
+      
+      if(elec_reliso[elec_size] < 0.3)
+      elec_isopass[elec_size] |= 1 << 0;
+    */
+    elec_size++;
+    if(elec_size>kMaxElectron) break;
+  }
+
+
+  //std::cout<<elec_size<<std::endl;
+  if(debug_)   std::cout<<"Here I am : got elec EE infor right "<<std::endl;
+
+  
   /////////////////////////////
   // Muon information
   /////////////////////////////
@@ -1219,7 +1296,7 @@ float Validator::calculate_demetraIsolation(const pat::Tau& tau)const{
     pat::PackedCandidate const* cand = dynamic_cast<pat::PackedCandidate const*>(IsoCand.get());
     if (! cand->charge() )continue;
     //WATCH OUT WHICH VERTICES THESE ARE
-    /*if(!vertices())continue;
+    if(!vertices())continue;
     const auto& tau_vertex = (*vertices())[tau_vertex_idxpf];
     
     if ((cand->pt()<=0.8) || (fabs(cand->dxy(tau_vertex.position()))>=0.05))continue;
