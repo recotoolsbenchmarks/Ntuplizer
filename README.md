@@ -15,20 +15,19 @@ Making a PR
 =====
 
 ```
-cmsrel CMSSW_11_2_0_pre7
-cd CMSSW_11_2_0_pre7/src/
+cmsrel CMSSW_11_2_0_pre10
+cd CMSSW_11_2_0_pre10/src/
 cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
 git cms-addpkg DataFormats/PatCandidates
 git cms-addpkg DataFormats/BTauReco
-git cms-merge-topic --strategy-option theirs mneukum:CMSSW_11_2_0_pre6_pv3d_nov30
+git cms-merge-topic mneukum:CMSSW_11_2_0_pre7_PhaseII_mar21
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
 rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
 rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
 rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
-git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
 scram b -j10
 
 mkdir new; cd new
@@ -65,20 +64,19 @@ Code Setup
 ####################################################################################
 ```
 
-cmsrel CMSSW_11_2_0_pre7
-cd CMSSW_11_2_0_pre7/src/
+cmsrel CMSSW_11_2_0_pre10
+cd CMSSW_11_2_0_pre10/src/
 cmsenv
 setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 git cms-addpkg RecoBTag
 git cms-addpkg DataFormats/PatCandidates
 git cms-addpkg DataFormats/BTauReco
-git cms-merge-topic --strategy-option theirs mneukum:CMSSW_11_2_0_pre6_pv3d_nov30
+git cms-merge-topic mneukum:CMSSW_11_2_0_pre7_PhaseII_mar21
 git clone -b Phase2_11_1_X --depth 1 https://github.com/emilbols/RecoBTag-PerformanceMeasurements.git RecoBTag/PerformanceMeasurements
 rm -f RecoBTag/PerformanceMeasurements/plugins/TTbarSelection*
 rm -f RecoBTag/PerformanceMeasurements/interface/TTbarSelection*
 rm -f RecoBTag/PerformanceMeasurements/python/TTbarSelection*
-git cms-merge-topic cms-tau-pog:CMSSW_11_2_X_tau-pog_anti-e-phase2
 scram b -j10
 
 mkdir new; cd new
