@@ -31,12 +31,12 @@ mkdir new; cd new
 ```
 If you do not attempt to contribute to this repository, simply clone it:
 ```
-git clone -b 11_1_0_pre6 https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 ```
 
 If you aim at contributing to the repository, you need to fork this repository (via the fork button) and then clone the forked repository:
 ```
-git clone -b 11_1_0_pre6 git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
+git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
@@ -69,7 +69,7 @@ setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
 git cms-init
 
 mkdir new; cd new
-git clone -b 11_1_0_pre6 https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
+git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
