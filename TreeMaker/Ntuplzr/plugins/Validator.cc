@@ -709,7 +709,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gamma_phi[gamma_size]       = photnsEB->at(ip).phi();
       gamma_mass[gamma_size]      = photnsEB->at(ip).mass();
       gamma_idvar[gamma_size]     = mvaValueEB; // MVA
-      gamma_reliso[gamma_size]    = 0. ;//(photns->at(ip).puppiChargedHadronIso() + photns->at(ip).puppiNeutralHadronIso() + photns->at(ip).puppiPhotonIso()) / photns->at(ip).pt();
+      gamma_reliso[gamma_size]    = 0. ;
       gamma_idpass[gamma_size]    = 0;
       gamma_isopass[gamma_size]   = 0;
       isLoose  = (mvaValueEB > 0.737502);
@@ -723,16 +723,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if(isTight)
 	gamma_idpass[gamma_size] |= 1 << 2;
-      /*
-	    if(gamma_reliso[gamma_size] < 0.1)
-	     gamma_isopass[gamma_size] |= 1 << 2;
-	    
-	    if(gamma_reliso[gamma_size] < 0.2)
-	     gamma_isopass[gamma_size] |= 1 << 1;
+      
+      if(gamma_reliso[gamma_size] < 0.1)
+	gamma_isopass[gamma_size] |= 1 << 2;
+      
+      if(gamma_reliso[gamma_size] < 0.2)
+	gamma_isopass[gamma_size] |= 1 << 1;
 	  
-	    if(gamma_reliso[gamma_size] < 0.3)
-	     gamma_isopass[gamma_size] |= 1 << 0;
-	  */
+      if(gamma_reliso[gamma_size] < 0.3)
+	gamma_isopass[gamma_size] |= 1 << 0;
+      
       gamma_size++;
       if(gamma_size>kMaxPhoton) break;
       
@@ -768,16 +768,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if(isTight)
 	gamma_idpass[gamma_size] |= 1 << 2;
-      /*
-	if(gamma_reliso[gamma_size] < 0.1)
+      
+      if(gamma_reliso[gamma_size] < 0.1)
 	gamma_isopass[gamma_size] |= 1 << 2;
-	
-	if(gamma_reliso[gamma_size] < 0.2)
-	 gamma_isopass[gamma_size] |= 1 << 1;
-	 
-	 if(gamma_reliso[gamma_size] < 0.3)
+      
+      if(gamma_reliso[gamma_size] < 0.2)
+	gamma_isopass[gamma_size] |= 1 << 1;
+      
+      if(gamma_reliso[gamma_size] < 0.3)
 	gamma_isopass[gamma_size] |= 1 << 0;
-      */
+      
       gamma_size++;
       if(gamma_size>kMaxPhoton) break;
     }
@@ -816,16 +816,16 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       elec_idpass[elec_size] |= 1 << 1;
     if(isTight)
       elec_idpass[elec_size] |= 1 << 2;  
-    /*
-      if(elec_reliso[elec_size] < 0.1)
+
+    if(elec_reliso[elec_size] < 0.1)
       elec_isopass[elec_size] |= 1 << 2;
-      
-      if(elec_reliso[elec_size] < 0.2)
+    
+    if(elec_reliso[elec_size] < 0.2)
       elec_isopass[elec_size] |= 1 << 1;
-      
-      if(elec_reliso[elec_size] < 0.3)
+    
+    if(elec_reliso[elec_size] < 0.3)
       elec_isopass[elec_size] |= 1 << 0;
-    */
+    
     elec_size++;
     if(elec_size>kMaxElectron) break;
   }
@@ -860,20 +860,20 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       elec_idpass[elec_size] |= 1 << 1;
     if(isTight)
       elec_idpass[elec_size] |= 1 << 2;  
-    /*
-      if(elec_reliso[elec_size] < 0.1)
+    
+    if(elec_reliso[elec_size] < 0.1)
       elec_isopass[elec_size] |= 1 << 2;
-      
-      if(elec_reliso[elec_size] < 0.2)
+    
+    if(elec_reliso[elec_size] < 0.2)
       elec_isopass[elec_size] |= 1 << 1;
-      
-      if(elec_reliso[elec_size] < 0.3)
+    
+    if(elec_reliso[elec_size] < 0.3)
       elec_isopass[elec_size] |= 1 << 0;
-    */
+    
     elec_size++;
     if(elec_size>kMaxElectron) break;
   }
-
+  
 
   //std::cout<<elec_size<<std::endl;
   if(debug_)   std::cout<<"Here I am : got elec EE infor right "<<std::endl;
