@@ -1,9 +1,11 @@
-# PhaseIIAnalysis
+# PhaseIIAnalysis 
 # Repository for collecting recipes for standard physics objects and for analysis of simulated events with the CMS phase 2 detector
 
 The recipes for accessing PhaseII objects are summarized here:
 
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
+
+This branch to be used only for btagging and taus parameterization.
 
 Table of contents
 =================
