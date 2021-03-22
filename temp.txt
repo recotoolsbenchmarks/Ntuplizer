@@ -1,0 +1,20 @@
+##########
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+
+python run_condor.py --processName DoubleElectron_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1-v2_GEN-SIM-DIGI-RAW-MINIAOD --inputFileList sourceFiles/DoubleElectron_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1-v2_GEN-SIM-DIGI-RAW-MINIAOD/DoubleElectron_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1-v2_GEN-SIM-DIGI-RAW-MINIAOD.txt --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 1 --test 
+
+
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+#python run_condor.py --processName  --inputFileList sourceFiles/ --cmsRunFile step_3_cfg.py --outputDir /eos/cms/store/group/upgrade/RTB/Iter6/11_3/RAW/ --nUnitPerJob 1 --nInputFileMax 100 
+
+
