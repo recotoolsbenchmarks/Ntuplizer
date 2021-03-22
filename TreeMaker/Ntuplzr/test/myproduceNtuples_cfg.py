@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import os
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 from RecoTauTag.RecoTau.tools import runTauIdMVA
@@ -38,6 +38,27 @@ options.register('Analyzr', 'Validator',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "Specify which ntuplzer you want to run "
+)
+
+options.register("sourceFile",
+    "", # Default value
+    VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.varType.string, # string, int, or float
+    "File containing list of input files" # Description
+)
+
+options.register("outputDir",
+    "", # Default value
+    VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.varType.string, # string, int, or float
+    "Output directory" # Description
+)
+
+options.register("outFileNumber",
+    -1, # Default value
+    VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.varType.int, # string, int, or float
+    "File number (will be added to the filename if >= 0)" # Description
 )
 
 options.parseArguments()
@@ -87,20 +108,60 @@ process.options   = cms.untracked.PSet(
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) 
 
-#options.inputFiles = ['file:input.root']
-#options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_2_0/src/step3_inMINIAODSIM.root']
-options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_3_0_pre4/src/step3.root']
+# Input source
+sourceFile = "DoublePhoton_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1_ext1-v2_FEVT.txt"
 
-#options.secondaryInputFiles = ''
-#options.inputFiles = ['/store/relval/CMSSW_11_0_0_pre13/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/20000/5E63BB51-0E53-104E-9ED4-7B2D73B5C930.root']
+if (len(options.sourceFile)) :
+    
+    sourceFile = options.sourceFile
+
+
+fNames = []
+
+if (len(options.inputFiles)) :
+    
+    fNames = options.inputFiles
+
+else :
+
+    with open(sourceFile) as f:
+        fNames = f.readlines()
+
+for iFile, fName in enumerate(fNames) :
+    
+    if (
+        "file:" not in fName and
+        "root:" not in fName
+    ) :
+        
+        fNames[iFile] = "file:%s" %(fName)
 
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-                                options.inputFiles 
-        ),
-                            
-)
+                            fileNames = cms.untracked.vstring(fNames),
+                            #fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1020000/3DA202C0-1245-B64C-9089-E9824CE72C66.root"),
+                            secondaryFileNames = cms.untracked.vstring()
+                        )
+
+outFileSuffix = ""
+if (options.outFileNumber >= 0) :
+    
+    outFileSuffix = "%s_%d" %(outFileSuffix, options.outFileNumber)
+
+
+outFile = "file%s.root" %(outFileSuffix)
+
+if (len(options.outputDir)) :
+    
+    os.system("mkdir -p %s" %(options.outputDir))
+    
+    outFile = "%s/%s" %(options.outputDir, outFile)
+
+
+#options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_3_0_pre4/src/step3.root']
+#options.secondaryInputFiles = ''
+#options.inputFiles = ['/store/relval/CMSSW_11_0_0_pre13/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/20000/5E63BB51-0E53-104E-9ED4-7B2D73B5C930.root']
+
 
 process.source.inputCommands = cms.untracked.vstring("keep *")
 
@@ -187,7 +248,7 @@ for key in options._register.keys():
 
 process.TFileService = cms.Service("TFileService",
                                    #fileName = cms.string(options.outputFile)
-                                   fileName = cms.string("file.root")
+                                   fileName = cms.string(outFile)
                                    )
 
 #$$
