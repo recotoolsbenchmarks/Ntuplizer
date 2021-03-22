@@ -4,7 +4,7 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step3 --conditions auto:phase2_realistic_T15 --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 --datatier MINIAODSIM --era Phase2C9 --eventcontent MINIAODSIM --filein file:step2.root --fileout file:step3.root --geometry Extended2026D49 --nStreams 2 --no_exec --number 10 --python_filename step_3_cfg.py --step RAW2DIGI,L1Reco,RECO,RECOSIM,PAT
 import FWCore.ParameterSet.Config as cms
-
+import os
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 
 process = cms.Process('ReRECO',Phase2C9)
@@ -26,23 +26,97 @@ process.load('Configuration.StandardSequences.PATMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
+############################## Parse arguments ##############################
+
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing("analysis")
+
+
+options.register("sourceFile",
+    "", # Default value
+    VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.VarParsing.varType.string, # string, int, or float
+    "File containing list of input files" # Description
+)
+
+options.register("outputDir",
+    "", # Default value
+    VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.VarParsing.varType.string, # string, int, or float
+    "Output directory" # Description
+)
+
+options.register("outFileNumber",
+    -1, # Default value
+    VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+    VarParsing.VarParsing.varType.int, # string, int, or float
+    "File number (will be added to the filename if >= 0)" # Description
+)
+
+options.parseArguments()
+
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1),
-    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+        output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 # Input source
-#sourceFile = "DoublePhoton_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1_ext1-v2_FEVT.txt"
+sourceFile = "DoublePhoton_FlatPt-1To100_Phase2HLTTDRSummer20ReRECOMiniAOD-PU200_111X_mcRun4_realistic_T15_v1_ext1-v2_FEVT.txt"
 
-#with open(sourceFile) as f:
-#        fNames = f.readlines()
+if (len(options.sourceFile)) :
+    
+    sourceFile = options.sourceFile
+
+
+fNames = []
+
+if (len(options.inputFiles)) :
+    
+    fNames = options.inputFiles
+
+else :
+
+    with open(sourceFile) as f:
+        fNames = f.readlines()
+
+for iFile, fName in enumerate(fNames) :
+    
+    if (
+        "file:" not in fName and
+        "root:" not in fName
+    ) :
+        
+        fNames[iFile] = "file:%s" %(fName)
+
+
+outFileSuffix = ""
+if (options.outFileNumber >= 0) :
+    
+    outFileSuffix = "%s_%d" %(outFileSuffix, options.outFileNumber)
+
+
+outFile = "ntupleTree%s.root" %(outFileSuffix)
+
+if (len(options.outputDir)) :
+    
+    os.system("mkdir -p %s" %(options.outputDir))
+    
+    outFile = "%s/%s" %(options.outputDir, outFile)
+
+
 
 # Input source
 process.source = cms.Source("PoolSource",
-                            #fileNames = cms.untracked.vstring(fNames),
-                            fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1020000/3DA202C0-1245-B64C-9089-E9824CE72C66.root"),
+                            fileNames = cms.untracked.vstring(fNames),
+                            #fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DoublePhoton_FlatPt-1To100/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext1-v2/1020000/3DA202C0-1245-B64C-9089-E9824CE72C66.root"),
                             secondaryFileNames = cms.untracked.vstring()
                         )
+
+if (outFile.find("/eos/cms") ==  0) :
+    
+    outFile = outFile.replace("/eos/cms", "root://eoscms.cern.ch//eos/cms/")
+
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
@@ -93,7 +167,8 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:step3.root'),
+    #fileName = cms.untracked.string('file.root'),
+    fileName = cms.untracked.string(outFile),
     outputCommands = process.MINIAODSIMEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
