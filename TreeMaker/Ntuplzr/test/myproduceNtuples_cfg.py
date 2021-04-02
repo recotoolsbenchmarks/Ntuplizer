@@ -44,17 +44,28 @@ options.parseArguments()
 
 process = cms.Process("MyAna", Phase2C9)
 
-# Geometry, GT, and other standard sequences
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+# Geometry, GT, and other standard sequences                                                                                                                       
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')                                                                                                               
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-process.GlobalTag.globaltag = "111X_mcRun4_realistic_T15_v1"
+#process.GlobalTag.globaltag = "auto:phase2_realistic_T15"                                                                                                                                      
+
+#process.load('Configuration.StandardSequences.RawToDigi_cff')                                                                                                                                  
+#process.load('Configuration.StandardSequences.L1Reco_cff')                                                                                                                                     
+#process.load('Configuration.StandardSequences.Reconstruction_cff')                                                                                                                             
+#process.load('Configuration.StandardSequences.RecoSim_cff')                                                                                                                                    
+#process.load('Configuration.StandardSequences.EndOfProcess_cff')                                                                                                                               
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase2_realistic_T15", "")
 
 
 # Log settings
