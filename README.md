@@ -3,10 +3,10 @@
 This is to be used for egamma and jets parameterization for delphes in 11_3_X.
 
 The recipes for accessing PhaseII objects are summarized here:
+[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/UPG#PhaseII_FS_object_recipes "UPG PhaseII recipes")
 
-[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
-
+This is used for egamma, muons and jets/met parameterization in 11_3_X.
 
 Table of contents
 =================

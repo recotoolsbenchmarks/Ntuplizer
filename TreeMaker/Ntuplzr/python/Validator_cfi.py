@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 myana = cms.EDAnalyzer('Validator',
                        debug              = cms.bool(False),
                        extendFormat       = cms.bool(False),
+                       applyjec           = cms.bool(False),
                        vertices           = cms.InputTag("offlineSlimmedPrimaryVertices"),
                        vertices4D         = cms.InputTag("offlineSlimmedPrimaryVertices4D"),
                        pfCandid           = cms.InputTag("packedPFCandidates"),
