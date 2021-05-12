@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    TreeMaker/Ntuplzr
@@ -116,7 +115,8 @@ private:
   
   bool isME0MuonSelNew(reco::Muon, double, double, double, edm::EventSetup const& );
   float calculate_demetraIsolation(const pat::Tau&) const;
-  bool debug_, extendFormat_;
+  float jec(float pt, float eta);
+  bool debug_, extendFormat_, applyjec_;
   edm::Service<TFileService> fs_;
   edm::EDGetTokenT<std::vector<reco::Vertex>>         verticesToken_     ;
   edm::EDGetTokenT<std::vector<reco::Vertex>>         vertices4DToken_   ;
@@ -225,6 +225,7 @@ private:
 Validator::Validator(const edm::ParameterSet& iConfig):
   debug_(iConfig.getParameter<bool>("debug")),
   extendFormat_(iConfig.getParameter<bool>("extendFormat")),
+  applyjec_(iConfig.getParameter<bool>("applyjec")),
   verticesToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
   vertices4DToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices4D"))),
   pfCandidToken_(consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfCandid"))),
@@ -649,7 +650,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     genpart_size++;
     if(genpart_size>kMaxParticle) break;       
   }
-  if(debug_)   std::cout<<"Here I am : got genpart infor right "<<std::endl;
+
+  if(debug_)  std::cout<<"Here I am : got genpart infor right "<<std::endl;
   
   
   /////////////////////////////
@@ -658,7 +660,7 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<size_t> jGenJets;                                            
   for(size_t ij= 0 ; ij < genJets->size(); ij++)
     {
-      if (genJets->at(ij).pt() < 20.) continue;
+      //if (genJets->at(ij).pt() < 20.) continue;
       if (fabs(genJets->at(ij).eta()) > 5) continue;
       
       //bool overlaps = false;
@@ -959,8 +961,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //if (taus->at(it).tauID("decayModeFinding")<0) continue;     
      if (!(taus->at(it).tauID("decayModeFindingNewDMs") > 0.5))// require to pass new DM finding algorithm
        continue;
-     if (!(taus->at(it).decayMode() < 5 || taus->at(it).decayMode() > 7)) // only 1- and 3-prongs
-       continue;
+     //if (!(taus->at(it).decayMode() < 5 || taus->at(it).decayMode() > 7)) // only 1- and 3-prongs
+     //  continue;
 
      tau_pt[tau_size]          = taus->at(it).pt();
      tau_eta[tau_size]         = taus->at(it).eta();
@@ -1024,24 +1026,37 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        //if (fabs(jets->at(ij).eta()) > 5) continue;
        //
 
-       jetpuppi_pt[jetpuppi_size]     = jets->at(ij).pt();
+       float scale =1.;
+       if(applyjec_)
+	 scale = jec( (float) jets->at(ij).pt(), (float) jets->at(ij).eta());
+       
+       jetpuppi_pt[jetpuppi_size]     = jets->at(ij).pt()*scale;
        jetpuppi_eta[jetpuppi_size]    = jets->at(ij).eta();
        jetpuppi_phi[jetpuppi_size]    = jets->at(ij).phi();
        jetpuppi_mass[jetpuppi_size]   = jets->at(ij).mass();
        jetpuppi_idpass[jetpuppi_size] = 0;
        jetpuppi_btag[jetpuppi_size]   = 0;
 
-       
        bool isLoose(0), isMedium(0), isTight(0);
+       
        if( (jets->at(ij).numberOfDaughters() > 1 ) && ( jets->at(ij).neutralEmEnergyFraction()< 0.99 ) && ( jets->at(ij).neutralHadronEnergyFraction() < 0.99 ))
        	 {
        	   isLoose = 1;
        	 }
-       isMedium = isLoose;
+
        if( (jets->at(ij).numberOfDaughters() > 1 ) && ( jets->at(ij).neutralEmEnergyFraction()< 0.9 ) && ( jets->at(ij).neutralHadronEnergyFraction() < 0.9 ))
        	 {
 	   isTight = 1;
 	 }
+
+       if(fabs(jets->at(ij).eta()) > 4)
+	 {
+	   isLoose = 1;
+	   isTight = 1;       
+	   //std::cout<<"nod:nEMF:nHEF: "<< jets->at(ij).numberOfDaughters() << ": "<< jets->at(ij).neutralEmEnergyFraction() << ": "<<jets->at(ij).neutralHadronEnergyFraction()<<std::endl;
+	 }
+
+       isMedium = isLoose;
 
        if(isLoose)
 	 jetpuppi_idpass[jetpuppi_size] |= 1 << 0;
@@ -1380,6 +1395,50 @@ Validator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
+}
+
+
+float Validator::jec(float pt, float eta)
+{
+  float scale = 1.;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 15.0 && pt <= 20.0) scale = 1.20;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 20.0 && pt <= 30.0) scale = 1.17;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 30.0 && pt <= 50.0) scale = 1.14;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 50.0 && pt <= 75.0) scale = 1.07;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 75.0 && pt <= 100.0) scale = 1.06;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 100.0 && pt <= 150.0) scale = 1.09;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 150.0 && pt <= 200.0) scale = 1.09;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 200.0 && pt <= 500.0) scale = 1.07;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 500.0 && pt <= 1000.0) scale = 1.04;
+  if (fabs(eta) > 0.0 && fabs(eta) <= 1.5 && pt > 1000.0 && pt <= 14000.0) scale = 1.02;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 15.0 && pt <= 20.0) scale = 1.55;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 20.0 && pt <= 30.0) scale = 1.58;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 30.0 && pt <= 50.0) scale = 1.48;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 50.0 && pt <= 75.0) scale = 1.44;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 75.0 && pt <= 100.0) scale = 1.60;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 100.0 && pt <= 150.0) scale = 1.62;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 150.0 && pt <= 200.0) scale = 1.64;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 200.0 && pt <= 500.0) scale = 1.56;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 500.0 && pt <= 1000.0) scale = 1.44;
+  if (fabs(eta) > 1.5 && fabs(eta) <= 3.0 && pt > 1000.0 && pt <= 14000.0) scale = 1.19;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 15.0 && pt <= 20.0) scale = 1.83;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 20.0 && pt <= 30.0) scale = 1.72;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 30.0 && pt <= 50.0) scale = 1.53;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 50.0 && pt <= 75.0) scale = 1.28;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 75.0 && pt <= 100.0) scale = 1.24;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 100.0 && pt <= 150.0) scale = 1.32;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 150.0 && pt <= 200.0) scale = 1.17;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 200.0 && pt <= 500.0) scale = 1.14;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 500.0 && pt <= 1000.0) scale = 0.99;
+  if (fabs(eta) > 3.0 && fabs(eta) <= 4.0 && pt > 1000.0 && pt <= 14000.0) scale = 0.99;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 15.0 && pt <= 20.0) scale = 1.85;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 20.0 && pt <= 30.0) scale = 1.77;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 30.0 && pt <= 50.0) scale = 1.41;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 50.0 && pt <= 75.0) scale = 1.20;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 75.0 && pt <= 100.0) scale = 1.06;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 100.0 && pt <= 150.0) scale = 1.06;
+  if (fabs(eta) > 4.0 && fabs(eta) <= 5.0 && pt > 150.0 && pt <= 14000.0) scale = 1.06;
+  return scale;
 }
 
 //define this as a plug-in

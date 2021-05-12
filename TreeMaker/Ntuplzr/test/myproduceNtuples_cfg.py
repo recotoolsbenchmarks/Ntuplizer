@@ -20,6 +20,12 @@ options.register('debug', False,
                  "For Debug purposes"
 )
 
+options.register('applyjec', True,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "to apply JECs on reco jets"
+)
+
 options.register('rerunBtag', True,
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.bool,
@@ -160,7 +166,7 @@ if (len(options.outputDir)) :
 
 #options.inputFiles = ['file:/afs/cern.ch/work/s/sandhya/Physics/Upgrade/RTB/snowmass/CMSSW_11_3_0_pre4/src/step3.root']
 #options.secondaryInputFiles = ''
-#options.inputFiles = ['/store/relval/CMSSW_11_0_0_pre13/RelValTTbar_14TeV/MINIAODSIM/PU25ns_110X_mcRun4_realistic_v2_2026D49PU200-v2/20000/5E63BB51-0E53-104E-9ED4-7B2D73B5C930.root']
+
 
 
 process.source.inputCommands = cms.untracked.vstring("keep *")
@@ -174,6 +180,8 @@ process.myana = cms.EDAnalyzer(moduleName)
 process.load("TreeMaker.Ntuplzr."+moduleName+"_cfi")
 
 process.myana.debug = options.debug
+process.myana.applyjec = options.applyjec
+#process.myana.applyjec = False
 process.myana.extendFormat = True
 
 #$$
