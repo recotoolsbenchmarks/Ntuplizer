@@ -2,10 +2,10 @@
 # Repository for collecting recipes for standard physics objects and for analysis of simulated events with the CMS phase 2 detector
 
 The recipes for accessing PhaseII objects are summarized here:
+[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/UPG#PhaseII_FS_object_recipes "UPG PhaseII recipes")
 
-[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
 
-This is to be used for egamma and jets parameterization in 11_3_X.
+This is used for egamma, muons and jets/met parameterization in 11_3_X.
 
 Table of contents
 =================
