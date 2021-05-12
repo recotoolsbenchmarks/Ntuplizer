@@ -882,8 +882,8 @@ Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //if (taus->at(it).tauID("decayModeFinding")<0) continue;     
      if (!(taus->at(it).tauID("decayModeFindingNewDMs") > 0.5))// require to pass new DM finding algorithm
        continue;
-     if (!(taus->at(it).decayMode() < 5 || taus->at(it).decayMode() > 7)) // only 1- and 3-prongs
-       continue;
+     //if (!(taus->at(it).decayMode() < 5 || taus->at(it).decayMode() > 7)) // only 1- and 3-prongs
+     //  continue;
 
      tau_pt[tau_size]          = taus->at(it).pt();
      tau_eta[tau_size]         = taus->at(it).eta();

@@ -5,7 +5,8 @@ This branch to be used only for btagging and taus parameterization.
 
 The recipes for accessing PhaseII objects are summarized here:
 
-[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/PhaseIIFSObjectRecipes "UPG PhaseII recipes")
+[UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/UPG#PhaseII_FS_object_recipes "UPG PhaseII recipes")
+
 
 
 
