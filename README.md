@@ -1,5 +1,6 @@
 # PhaseIIAnalysis
 # Repository for collecting recipes for standard physics objects and for analysis of simulated events with the CMS phase 2 detector
+This is to be used for egamma and jets parameterization for delphes in 11_3_X.
 
 The recipes for accessing PhaseII objects are summarized here:
 [UPG PhaseII recipes](https://twiki.cern.ch/twiki/bin/view/CMS/UPG#PhaseII_FS_object_recipes "UPG PhaseII recipes")
