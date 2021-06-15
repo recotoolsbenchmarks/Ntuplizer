@@ -36,6 +36,10 @@ git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
 If you aim at contributing to the repository, you need to fork this repository (via the fork button) and then clone the forked repository:
 ```
 git clone git@github.com:YOURGITUSERNAME/RecoNtuplizer.git .
+```
+
+Continue : 
+```
 cd ../; mv new/* .
 cp -r new/.git .
 rm -rf new
@@ -53,85 +57,59 @@ If you want to submit a new feature to ```recotoolsbenchmarks/RecoNtuplizer``` y
 So, first commit and push your changes to ```YOURGITUSERNAME/RecoNtuplizer``` and then make a PR via the github interface. 
 
 
-Code Setup
+Condor Setup
 =====
 
-####################################################################################
-```
-cmsrel CMSSW_11_3_0_pre4
-cd CMSSW_11_3_0_pre4/src/
-cmsenv
-git cms-merge-topic SohamBhattacharya:PhaseII_forRTB_11_3_0_pre4
-scram b -j10
+Currently in 11.3, we have re-reco setup + Basic phase-2 full-sim setup. 
 
-setenv CMSSW_GIT_REFERENCE /cvmfs/cms.cern.ch/cmssw.git.daily
-git cms-init
 
-mkdir new; cd new
-git clone https://github.com/recotoolsbenchmarks/RecoNtuplizer.git .
-cd ../; mv new/* .
-cp -r new/.git .
-rm -rf new
-scram b -j 10
-cd TreeMaker/Ntuplzr/
-```
-####################################################################################
-Basic Setup : Here in plugins/Ntuplzr.cc is the EDAnalyzer that makes the ntuples, takes in information 
-from python/Ntuplzr_cfi.py. These default parameters can be modified in :
-test/myproduceNtuples_cfg.py
+##############################################################################
+To submit the re-reco condor setup, please first generate your proxy and copy it in directory:  
+$HOME/proxies/ 
 
-to run this file, do :  
-```
-cmsRun test/myproduceNtuples_cfg.py maxEvents=10 outputFile=file.root
-```
+Then in CMSSW_11_3_0_pre4/src : 
 
-###################################################################################
-STEP 1 : to get the main ntuples from this Ntuplzer using test/myproduceNtuples_cfg.py, a crab setup is there. one can update 
-        various parameters in test/Step1_crab/submitCrabJobs_cfgparams.py according to their choice. 
-	To crab-submit, do : 
+To get the files corresponding to a given dataset: 
 
 ```
-cd test/Step1_crab
-python submitCrabJobs_cfgparams.py 
-```
-###################################################################################
-To check on the status or resubmit the jobs, change the file Resubmit.csh accordingly and do :  
-```
-source Resubmit.csh
+mkdir sourceFiles
 ```
 
-###################################################################################
-STEP 2 : Once the main ntuples are there, C++ classes along with a proof wrapper is written to be able to run the jobs 
-parallely on the system. 
-
-Here we have multiple classes based on what needs to be done. 
-SelectorClass_SIG.C/h : Mainly to plot the efficiency on a given signal sample 
-SelectorClass_BKG.C/h : Mainly to plot the fake-rate  on a given bkground sample 
-
-
-To get this going on the root files stored in: 
-/eos/cms/store/group/upgrade/RTB/
-
-Step1_runcreateList.sh creates the input list of files for a given sample through a script createList.sh.
-And then Step2_runScript_runAll_eff.sh runs over the given class through the wrapper code of runAll.C.
-To Run : 
-
+Add the corresponding dataset accrordingly in getDASdataFiles.py in the list l_samplename
+and run using : 
 ```
-cd test/Step2_PostAN
-./Step1_runcreateList.sh
-./Step2_runScript_runAll_eff.sh
+python getDASdataFiles.py --getFiles
 ```
 
-This gives the root files with all the information as askd from the class that was run. 
+Then in temp.txt: add the processName, path to input files, path to putput files etc..  as the given examples:
+```
+./temp.txt
+```
+##############################################################################
 
-###################################################################################
 
-STEP 3: This is where one makes the final histograms and puts them on web page or wherever u want them to put using the proper plotter. 
-for the efficiency or fake rate plots, do : 
+
+To submit the ntuplizer condor setup, again please first generate your proxy and copy it in directory:  
+$HOME/proxies/ 
+
+Then in CMSSW_11_3_0_pre4/src/TreeMaker/Ntuplzr/test: 
+
+To get the files corresponding to a given dataset: 
 
 ```
-cd test/Step3_MakePlots
-./Step1_getEffPlots.sh
-``` 	   
-###################################################################################
+mkdir sourceFiles
+```
 
+Add the path to corresponding re-reco files in getDASdataFiles.py 
+and run using : 
+```
+python getDASdataFiles.py --getFiles
+```
+
+Then in temp.txt: add the processName, path to input files, path to putput files etc..  as before and run : 
+```
+./temp.txt
+```
+
+
+=====
