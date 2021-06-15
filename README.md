@@ -12,7 +12,7 @@ Table of contents
 =================
 
   * [Making a PR](#makingPR)
-  * [Code Setup](#setup)
+  * [Condor Setup](#setup)
 
 Making a PR
 =====
